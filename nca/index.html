@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>New CharActers</title>
+
+    <link rel="stylesheet" href="./style5.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.3.0/dist/tf.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- <script scr="./exp5/text/js"></script> -->
+
+    <style>
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000;
+            
+        }
+        
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px
+        }
+        
+        #nav {
+            color: #000;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body style="background-color: #F0F3F5;">
+    <header id="nav">
+        <h1>
+            <a href="index.html" style="text-decoration: none;">Decontextualization [WIP]</a> by
+            <a href="https://theunthoughts.com/" target="_blank" style="text-decoration: none;">¡wénrán zhào!</a>: Jul 2022<br>
+            <a href="../walk/index.html" style="text-decoration: none;">&lt;&lt; Prev</a> &mdash;
+            <a href="../writinglines/index.html" style="text-decoration: none;">Next &gt;&gt;</a>
+        </h1>
+    </header>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.3.0/dist/tf.min.js"></script>
+
+    <br>
+    <div class="menu">
+        <label for="touch"><span>≡&nbsp&nbspControl</span></label>
+        <input type="checkbox" id="touch">
+        <ul class="slide">
+            Press the up and down keys to select a line to translate.<br> The selected line is highlighted in red.
+            <br><br> Press and move around the mouse to intervene the generation process of the poem.
+        </ul>
+    </div>
+
+    <div class="parent">
+        <div class="div1">
+            <canvas id='canvas1' class="canvas-hide-cursor">0</canvas>
+        </div>
+        <div class="div2">
+            <canvas id='canvas2' class="canvas-hide-cursor">0</canvas> <br> <br>
+        </div>
+    </div>
+
+    <div class="note">
+        <div class="note-div1">
+            <h1>Decontextualization.</h1>
+            <br><br> It all starts from a word, a single character. Then, just as cell becomes tissue and tissue becomes organ, word becomes phrase and then poem.
+        </div>
+        <div class="note-div3">
+            Organic tissue arranges itself through genetic instructions contained within each cell; self-organizing morphogenesis. <a href="https://plato.stanford.edu/entries/cellular-automata/#:~:text=Cellular%20automata%20(henceforth%3A%20CA),a%20variety%20of%20scientific%20fields.">Cellular automata systems</a>,
+            on the other hand, replicate this operation somewhat in the digital world: each digital cell contains instructions that determine its state based on what is around it. The surrounding neighborhood of cells continues this process over and over
+            until the system achieves homeostasis. In this work, a single character-cell begins to self-replicate by grabbing onto other words contained within an original poem. Each cell has a definite end point (a definite character), yet the emergence
+            of complex outcomes and randomness lies in the interplay between the orchestrated genetic instruction and homeostatic feedback loops. The system continues to update itself unceasingly, trying to reach the target shape–the original poem.
+        </div>
+        <div class="note-div5">
+            Meanwhile, Google Translate is trying to piece together the intact or broken phrases of a single line, attempting to interpret the poem from one natural language to another, generating creative prose en route based on its tragic rules. Or isn't it just
+            Google Translate’s reading of poetry? </div>
+        <div class="note-div7">
+            Like a rough and uneven ground, natural language is not as rigorous and clear as the smooth, ice-like formal language of code; instead, it has a certain degree of ambiguity and complexity that leads to endless possibilities of diverse interpretations,
+            which makes us, as Wittgenstein suggested, "able to walk on." Translating from formal language to natural language is a process that this project keeps on trying, creating, and recreating over and over again.
+        </div>
+        <div class="note-div9">
+            In Decontextualization, poetry appears as an autonomous programmable sequence represented by language, and neither grammatical nor logical rules determine its meaning, utterance, and expression.
+        </div>
+        <div class="note-div2">
+            <h1>去語境化。</h1><br><br> 從一個字，一個點開始，本詩以細胞複製的方式自我生產著一首詩。
+        </div>
+        <div class="note-div4">
+            有機組織通過每個細胞中包含的遺傳指令自行排列——自組織形態從中產生。<a href="https://plato.stanford.edu/entries/cellular-automata/#:~:text=Cellular%20automata%20(henceforth%3A%20CA),a%20variety%20of%20scientific%20fields.">細胞自動機</a>在數字世界中稍微複製此操作：每個數字單元都包含根據周圍環境確定其狀態的指令。周圍的細胞鄰域一遍又一遍地繼續這個過程直到系統達到穩態。在本詩中，每個單元格通過抓取原始詩歌中包含的字詞進行自我複制。每個單元格都有一個明確的終點（一個明確的字符），
+            但在遺傳指令和穩態反饋迴路之間的相互作用下，卻有複雜的結果和隨機性出現。系統不斷地自我更新，試圖達到目標形狀——原本的詩。
+        </div>
+        <div class="note-div6">
+            與此同時，谷歌翻譯也在努力將或完整或破碎的詞句拼湊起來，將詩歌從一種日常語言解釋為另一種，按照悲劇性的規則創造充滿創意的詩句。但這只是谷歌翻譯的理解？
+        </div>
+        <div class="note-div8">
+            就像一塊粗糙不平的土地，自然語言不像代碼這種光滑如冰的形式語言那樣嚴謹和清晰；相反，它具有一定程度的模糊性和復雜性，導致了多樣化解釋的無限可能性。這使得我們，正如維特根斯坦所建議的，"能夠在此行走"。從形式語言到自然語言的翻譯是這個作品不斷嘗試、創造和反复創造的過程。
+        </div>
+        <div class="note-div10">
+            在本詩中，詩顯現為由語言呈現的、擁有自治性的可編程序列，然而語法和邏輯規則都不能決定它如何被表述、被理解。
+        </div>
+    </div>
+    <canvas id='canvas0' style="position: absolute; left: -100px; border: 2px solid #ededeb ">0</canvas>
+    <script src="./exp5/text.js"></script>
+    <script src="./exp5/hanzi.js"></script>
+    <script src="./exp5/display_char.js"></script>
+    <!-- <script src="./exp5/translate.js"></script> -->
+
+</body>
+
+</html>

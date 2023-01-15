@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500&display=swap');
+
+.parent {
+    margin-top: 3em;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    grid-template-rows: repeat(1, 1fr);
+    grid-column-gap: 50px;
+    grid-row-gap: 0px;
+}
+
+.div1 {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.div2 {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.note {
+    margin-top: 13em;
+    margin-bottom: 5em;
+    width: 70%;
+    color: #262626;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 1.2em;
+    line-height: 32px;
+    /* within paragraph */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, auto);
+    grid-column-gap: 40px;
+    grid-row-gap: 25px;
+    /* text-align: justify; */
+}
+
+.note-div1 {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.note-div2 {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.note-div3 {
+    grid-area: 2 / 1 / 3 / 2;
+}
+
+.note-div4 {
+    grid-area: 2 / 2 / 3 / 3;
+}
+
+.note-div5 {
+    grid-area: 3 / 1 / 4 / 2;
+}
+
+.note-div6 {
+    grid-area: 3 / 2 / 4 / 3;
+}
+
+.note-div7 {
+    grid-area: 4 / 1 / 5 / 2;
+}
+
+.note-div8 {
+    grid-area: 4 / 2 / 5 / 3;
+}
+
+.note-div9 {
+    grid-area: 5 / 1 / 6 / 2;
+}
+
+.note-div10 {
+    grid-area: 5 / 2 / 6 / 3;
+}
+
+#canvas1 {
+    margin-top: 10%;
+    /* border: 4px solid #820505; */
+    /* position: absolute; */
+    margin-left: auto;
+    /* background-image: url('./bg.jpeg');
+    background-repeat: no-repeat;
+    background-size: 100% 100%; */
+    /* background-color: #262626; */
+    display: block;
+    box-sizing: border-box;
+    border: 0px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 5%;
+}
+
+#canvas2 {
+    margin-top: 15%;
+    /* background-color: #e8dfc5; */
+    /* position: absolute; */
+    /* top: 50%; */
+    /* transform: translate(0, -50%);        */
+}
+
+.canvas-hide-cursor {
+    /* cursor: none; */
+    cursor: cell;
+}
+
+h1 {
+    padding: 40px;
+    font-size: 1.5em;
+}
+
+span {
+    padding-left: 30px;
+    background: transparent;
+    color: black;
+    font-size: 1em;
+    cursor: pointer;
+    display: block;
+}
+.menu{
+    position: absolute;
+}
+.slide {
+    clear: both;
+    width: 100%;
+    height: 0px;
+    overflow: hidden;
+    transition: height .4s ease;
+    float: inline-end;
+}
+
+.slide li {
+    padding: 30px;
+}
+
+#touch {
+    position: absolute;
+    opacity: 0;
+    height: 0px;
+}
+
+#touch:checked+.slide {
+    height:90px;
+}
+
+.canvas-container {
+    width: 100%;
+    text-align: center;
+}
+
+#canvas {
+    display: inline-block;
+}
+
+.logo {
+    width: 100px;
+}
+
+.b2mp {
+    font-weight: bold;
+}
+
+.center {
+    text-align: center;
+    width: auto;
+}
+
+.index_center {
+    text-align: center;
+    margin-left: auto;
+}
+
+.leftFloating {
+    float: left;
+    text-align: left;
+    margin-left: 4%;
+    margin-top: 10%;
+    width: 30%;
+    line-height: 2em;
+    font-size: 1.1em;
+}
+
+.text {
+    line-height: 2.3em;
+    font-size: 1em;
+}
+
+.mainPageLinks {
+    font-size: 1.15em;
+}
+
+.rightFloating {
+    float: right;
+    width: 60%;
+    margin-right: 5%;
+}
+
+.rightFloating2 {
+    float: right;
+    width: 70%;
+    margin-right: 5%;
+}
+
+a {
+    color: black;
+}
+
+canvas {
+    width: 48px;
+    height: 48px;
+    display: inline-block;
+    image-rendering: pixelated;
+    margin-top: 3.5%;
+}
+
+.description {
+    line-height: 2.2em;
+    font-size: 1.1em;
+}
+
+.leftCol {
+    grid-area: 1 / 1 / 3 / 5;
+}
+
+.main {
+    grid-area: 1 / 2 / 4/ 6;
+}
+
+.credit {
+    font-size: 1em;
+    font-style: bold;
+    line-height: 1.4em;
+}
+
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    /* animation: rotation 1s linear infinite; */
+}

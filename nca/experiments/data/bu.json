@@ -1,0 +1,1607 @@
+{
+  "format": "graph-model",
+  "modelTopology": {
+    "node": [{
+      "name": "x",
+      "op": "Placeholder",
+      "attr": {
+        "dtype": {
+          "type": "DT_FLOAT"
+        },
+        "shape": {
+          "shape": {
+            "dim": [{
+              "size": "-1"
+            }, {
+              "size": "-1"
+            }, {
+              "size": "-1"
+            }, {
+              "size": "16"
+            }]
+          }
+        }
+      }
+    }, {
+      "name": "angle",
+      "op": "Placeholder",
+      "attr": {
+        "dtype": {
+          "type": "DT_FLOAT"
+        },
+        "shape": {
+          "shape": {}
+        }
+      }
+    }, {
+      "name": "step_size",
+      "op": "Placeholder",
+      "attr": {
+        "shape": {
+          "shape": {}
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "fire_rate",
+      "op": "Placeholder",
+      "attr": {
+        "shape": {
+          "shape": {}
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "strided_slice/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAwAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAABAAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AQAAAAEAAAABAAAAAQAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice",
+      "op": "StridedSlice",
+      "input": ["x", "strided_slice/stack", "strided_slice/stack_1", "strided_slice/stack_2"],
+      "attr": {
+        "shrink_axis_mask": {
+          "i": "0"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "begin_mask": {
+          "i": "7"
+        },
+        "new_axis_mask": {
+          "i": "0"
+        },
+        "end_mask": {
+          "i": "7"
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "Index": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "MaxPool2d",
+      "op": "MaxPool",
+      "input": ["strided_slice"],
+      "attr": {
+        "ksize": {
+          "list": {
+            "i": ["1", "3", "3", "1"]
+          }
+        },
+        "padding": {
+          "s": "U0FNRQ=="
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        },
+        "strides": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "explicit_paddings": {
+          "list": {}
+        }
+      }
+    }, {
+      "name": "Greater/y",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {},
+            "floatVal": [0.1]
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "Greater",
+      "op": "Greater",
+      "input": ["MaxPool2d", "Greater/y"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "Func/PartitionedCall/input/_0",
+      "op": "Identity",
+      "input": ["x"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/stack_1/values_0",
+      "op": "Const",
+      "attr": {
+        "dtype": {
+          "type": "DT_FLOAT"
+        },
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "3"
+              }, {
+                "size": "3"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAA"
+          }
+        }
+      }
+    }, {
+      "name": "Func/PartitionedCall/input/_1",
+      "op": "Identity",
+      "input": ["angle"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Cos",
+      "op": "Cos",
+      "input": ["Func/PartitionedCall/input/_1"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul/y",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "3"
+              }, {
+                "size": "3"
+              }]
+            },
+            "tensorContent": "AAAAvgAAAAAAAAA+AACAvgAAAAAAAIA+AAAAvgAAAAAAAAA+"
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul",
+      "op": "Mul",
+      "input": ["PartitionedCall/Cos", "PartitionedCall/mul/y"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Sin",
+      "op": "Sin",
+      "input": ["Func/PartitionedCall/input/_1"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul_1/y",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "3"
+              }, {
+                "size": "3"
+              }]
+            },
+            "tensorContent": "AAAAvgAAgL4AAAC+AAAAAAAAAAAAAAAAAAAAPgAAgD4AAAA+"
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul_1",
+      "op": "Mul",
+      "input": ["PartitionedCall/Sin", "PartitionedCall/mul_1/y"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/sub",
+      "op": "Sub",
+      "input": ["PartitionedCall/mul", "PartitionedCall/mul_1"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul_2/y",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "3"
+              }, {
+                "size": "3"
+              }]
+            },
+            "tensorContent": "AAAAvgAAAAAAAAA+AACAvgAAAAAAAIA+AAAAvgAAAAAAAAA+"
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul_2",
+      "op": "Mul",
+      "input": ["PartitionedCall/Sin", "PartitionedCall/mul_2/y"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul_3/y",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "3"
+              }, {
+                "size": "3"
+              }]
+            },
+            "tensorContent": "AAAAvgAAgL4AAAC+AAAAAAAAAAAAAAAAAAAAPgAAgD4AAAA+"
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/mul_3",
+      "op": "Mul",
+      "input": ["PartitionedCall/Cos", "PartitionedCall/mul_3/y"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/add",
+      "op": "AddV2",
+      "input": ["PartitionedCall/mul_2", "PartitionedCall/mul_3"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/stack_1",
+      "op": "Pack",
+      "input": ["PartitionedCall/stack_1/values_0", "PartitionedCall/sub", "PartitionedCall/add"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "axis": {
+          "i": "-1"
+        },
+        "N": {
+          "i": "3"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/strided_slice/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAAAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/strided_slice/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAAAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/strided_slice/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AQAAAAEAAAABAAAAAQAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/strided_slice",
+      "op": "StridedSlice",
+      "input": ["PartitionedCall/stack_1", "PartitionedCall/strided_slice/stack", "PartitionedCall/strided_slice/stack_1", "PartitionedCall/strided_slice/stack_2"],
+      "attr": {
+        "Index": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "shrink_axis_mask": {
+          "i": "0"
+        },
+        "begin_mask": {
+          "i": "11"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "new_axis_mask": {
+          "i": "4"
+        },
+        "end_mask": {
+          "i": "11"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/ExpandDims/dim",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [3]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/ExpandDims",
+      "op": "ExpandDims",
+      "input": ["PartitionedCall/strided_slice", "PartitionedCall/Repeat/ExpandDims/dim"],
+      "attr": {
+        "Tdim": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Tile/multiples/0",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [1]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Tile/multiples/1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [1]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Tile/multiples/2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [1]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/repeats",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [16]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Cast",
+      "op": "Cast",
+      "input": ["PartitionedCall/Repeat/repeats"],
+      "attr": {
+        "DstT": {
+          "type": "DT_INT32"
+        },
+        "SrcT": {
+          "type": "DT_INT32"
+        },
+        "Truncate": {
+          "b": false
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Reshape/shape_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{}]
+            }
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Reshape",
+      "op": "Reshape",
+      "input": ["PartitionedCall/Repeat/Cast", "PartitionedCall/Repeat/Reshape/shape_1"],
+      "attr": {
+        "T": {
+          "type": "DT_INT32"
+        },
+        "Tshape": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Tile/multiples/4",
+      "op": "Const",
+      "attr": {
+        "dtype": {
+          "type": "DT_INT32"
+        },
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [1]
+          }
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Tile/multiples",
+      "op": "Pack",
+      "input": ["PartitionedCall/Repeat/Tile/multiples/0", "PartitionedCall/Repeat/Tile/multiples/1", "PartitionedCall/Repeat/Tile/multiples/2", "PartitionedCall/Repeat/Reshape", "PartitionedCall/Repeat/Tile/multiples/4"],
+      "attr": {
+        "N": {
+          "i": "5"
+        },
+        "T": {
+          "type": "DT_INT32"
+        },
+        "axis": {
+          "i": "0"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Tile",
+      "op": "Tile",
+      "input": ["PartitionedCall/Repeat/ExpandDims", "PartitionedCall/Repeat/Tile/multiples"],
+      "attr": {
+        "Tmultiples": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Shape",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AwAAAAMAAAABAAAAAwAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [0]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [2]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [1]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice",
+      "op": "StridedSlice",
+      "input": ["PartitionedCall/Repeat/Shape", "PartitionedCall/Repeat/strided_slice/stack", "PartitionedCall/Repeat/strided_slice/stack_1", "PartitionedCall/Repeat/strided_slice/stack_2"],
+      "attr": {
+        "shrink_axis_mask": {
+          "i": "0"
+        },
+        "begin_mask": {
+          "i": "1"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "new_axis_mask": {
+          "i": "0"
+        },
+        "end_mask": {
+          "i": "0"
+        },
+        "T": {
+          "type": "DT_INT32"
+        },
+        "Index": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_1/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [2]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_1/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [3]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_1/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [1]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_1",
+      "op": "StridedSlice",
+      "input": ["PartitionedCall/Repeat/Shape", "PartitionedCall/Repeat/strided_slice_1/stack", "PartitionedCall/Repeat/strided_slice_1/stack_1", "PartitionedCall/Repeat/strided_slice_1/stack_2"],
+      "attr": {
+        "shrink_axis_mask": {
+          "i": "1"
+        },
+        "begin_mask": {
+          "i": "0"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "new_axis_mask": {
+          "i": "0"
+        },
+        "end_mask": {
+          "i": "0"
+        },
+        "Index": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/mul",
+      "op": "Mul",
+      "input": ["PartitionedCall/Repeat/Reshape", "PartitionedCall/Repeat/strided_slice_1"],
+      "attr": {
+        "T": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/concat/values_1",
+      "op": "Pack",
+      "input": ["PartitionedCall/Repeat/mul"],
+      "attr": {
+        "T": {
+          "type": "DT_INT32"
+        },
+        "axis": {
+          "i": "0"
+        },
+        "N": {
+          "i": "1"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_2/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [3]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_2/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [0]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_2/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }]
+            },
+            "intVal": [1]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/strided_slice_2",
+      "op": "StridedSlice",
+      "input": ["PartitionedCall/Repeat/Shape", "PartitionedCall/Repeat/strided_slice_2/stack", "PartitionedCall/Repeat/strided_slice_2/stack_1", "PartitionedCall/Repeat/strided_slice_2/stack_2"],
+      "attr": {
+        "end_mask": {
+          "i": "1"
+        },
+        "Index": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_INT32"
+        },
+        "shrink_axis_mask": {
+          "i": "0"
+        },
+        "begin_mask": {
+          "i": "0"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "new_axis_mask": {
+          "i": "0"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/concat/axis",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {},
+            "intVal": [0]
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/concat",
+      "op": "ConcatV2",
+      "input": ["PartitionedCall/Repeat/strided_slice", "PartitionedCall/Repeat/concat/values_1", "PartitionedCall/Repeat/strided_slice_2", "PartitionedCall/Repeat/concat/axis"],
+      "attr": {
+        "Tidx": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_INT32"
+        },
+        "N": {
+          "i": "3"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Repeat/Reshape_1",
+      "op": "Reshape",
+      "input": ["PartitionedCall/Repeat/Tile", "PartitionedCall/Repeat/concat"],
+      "attr": {
+        "Tshape": {
+          "type": "DT_INT32"
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "PartitionedCall/depthwise",
+      "op": "DepthwiseConv2dNative",
+      "input": ["Func/PartitionedCall/input/_0", "PartitionedCall/Repeat/Reshape_1"],
+      "attr": {
+        "dilations": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        },
+        "strides": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "explicit_paddings": {
+          "list": {}
+        },
+        "padding": {
+          "s": "U0FNRQ=="
+        }
+      }
+    }, {
+      "name": "PartitionedCall/Identity",
+      "op": "Identity",
+      "input": ["PartitionedCall/depthwise"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "Func/PartitionedCall/output/_2",
+      "op": "Identity",
+      "input": ["PartitionedCall/Identity"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/Conv2D/ReadVariableOp/resource",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }, {
+                "size": "1"
+              }, {
+                "size": "48"
+              }, {
+                "size": "128"
+              }]
+            },
+            "tensorContent": "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"
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/Conv2D/ReadVariableOp",
+      "op": "Identity",
+      "input": ["sequential_4/conv2d_8/Conv2D/ReadVariableOp/resource"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/Conv2D",
+      "op": "Conv2D",
+      "input": ["Func/PartitionedCall/output/_2", "sequential_4/conv2d_8/Conv2D/ReadVariableOp"],
+      "attr": {
+        "use_cudnn_on_gpu": {
+          "b": true
+        },
+        "explicit_paddings": {
+          "list": {}
+        },
+        "padding": {
+          "s": "VkFMSUQ="
+        },
+        "dilations": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "strides": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/BiasAdd/ReadVariableOp/resource",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "128"
+              }]
+            },
+            "tensorContent": "+esOPaRSpTwwPoW7lxp0PfSUZr4PEN28OWXJvO1L3Dt0eVa9S3BUvUDduz3t73e8raqKPK8Xpbynfsw5pS/ePCT7pzzFmRi9MiTdvMs4WLsjYpo8wPHsuwm1UDqxHgI8fv/kPAqNk7w46QA9LzHZO6IxeTycxTI92vARvMaJtTzdoFe9n3havsiXS7uXiAq+jU+9vF4izT0C4S87iTx/PMkVy7zWI6C8cNGzvd7JLrwrvYc7RduyvUI36Ll6EAC+kzUtPUlaZb3X9RQ87bnTPNocG71PZuw6xf3APCX/kDyrMDe7Z2rGPKLTmr5tGEE9Tz9tO6Fx2b2yo8S7nIOjvcC+xbzPUG49s2a7vvN0nbuaCnQ9fDj9vaVrmzwzaT48mpVfu5K82zxrH6i8iU7jvdgajTxPwco8/vJkvY+OBbzdKs88M4XXvVrcH77ypG+8bI0wPbTBErtNEUG+QhofPaE3UD0lWUQ868qEvayyhzxd7IC4/VHOvcMdiz2d2im+yx4VPVXcQr3ttV49f/bgvPAakT03Xwu96lubPDsjsrypM7K9DTmKu/2bDLwcxoW99lIWPcfmej2Qgbm9JW1ovU6nOj1yuwQ9vdirvc3R6r32mdi5zSi7vOymoLwBYI29ALCNvD4uyjt5sVY9aZeDvtYHFr5D/J48TCi9PRWWsbw="
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/BiasAdd/ReadVariableOp",
+      "op": "Identity",
+      "input": ["sequential_4/conv2d_8/BiasAdd/ReadVariableOp/resource"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/BiasAdd",
+      "op": "BiasAdd",
+      "input": ["sequential_4/conv2d_8/Conv2D", "sequential_4/conv2d_8/BiasAdd/ReadVariableOp"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_8/Relu",
+      "op": "Relu",
+      "input": ["sequential_4/conv2d_8/BiasAdd"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_9/Conv2D/ReadVariableOp/resource",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "1"
+              }, {
+                "size": "1"
+              }, {
+                "size": "128"
+              }, {
+                "size": "16"
+              }]
+            },
+            "tensorContent": "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"
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_9/Conv2D/ReadVariableOp",
+      "op": "Identity",
+      "input": ["sequential_4/conv2d_9/Conv2D/ReadVariableOp/resource"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_9/Conv2D",
+      "op": "Conv2D",
+      "input": ["sequential_4/conv2d_8/Relu", "sequential_4/conv2d_9/Conv2D/ReadVariableOp"],
+      "attr": {
+        "dilations": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "strides": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        },
+        "explicit_paddings": {
+          "list": {}
+        },
+        "use_cudnn_on_gpu": {
+          "b": true
+        },
+        "padding": {
+          "s": "VkFMSUQ="
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_9/BiasAdd/ReadVariableOp/resource",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {
+              "dim": [{
+                "size": "16"
+              }]
+            },
+            "tensorContent": "xfmRO3BSkrsmaus7WZdJPeOmlTxzuY+8sVUiPAkDh734z1W9vUoMvDe3gjweDpM8A/CIvTxI3rqeA2A9BbwIvQ=="
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_9/BiasAdd/ReadVariableOp",
+      "op": "Identity",
+      "input": ["sequential_4/conv2d_9/BiasAdd/ReadVariableOp/resource"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "sequential_4/conv2d_9/BiasAdd",
+      "op": "BiasAdd",
+      "input": ["sequential_4/conv2d_9/Conv2D", "sequential_4/conv2d_9/BiasAdd/ReadVariableOp"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        }
+      }
+    }, {
+      "name": "mul",
+      "op": "Mul",
+      "input": ["sequential_4/conv2d_9/BiasAdd", "step_size"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "strided_slice_1/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAAAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice_1/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAQAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice_1/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AQAAAAEAAAABAAAAAQAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice_1",
+      "op": "StridedSlice",
+      "input": ["x", "strided_slice_1/stack", "strided_slice_1/stack_1", "strided_slice_1/stack_2"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "Index": {
+          "type": "DT_INT32"
+        },
+        "shrink_axis_mask": {
+          "i": "0"
+        },
+        "begin_mask": {
+          "i": "15"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "new_axis_mask": {
+          "i": "0"
+        },
+        "end_mask": {
+          "i": "7"
+        }
+      }
+    }, {
+      "name": "Shape",
+      "op": "Shape",
+      "input": ["strided_slice_1"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "out_type": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "random_uniform/RandomUniform",
+      "op": "RandomUniform",
+      "input": ["Shape"],
+      "attr": {
+        "seed": {
+          "i": "0"
+        },
+        "T": {
+          "type": "DT_INT32"
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        },
+        "seed2": {
+          "i": "0"
+        }
+      }
+    }, {
+      "name": "LessEqual",
+      "op": "LessEqual",
+      "input": ["random_uniform/RandomUniform", "fire_rate"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "Cast",
+      "op": "Cast",
+      "input": ["LessEqual"],
+      "attr": {
+        "Truncate": {
+          "b": false
+        },
+        "DstT": {
+          "type": "DT_FLOAT"
+        },
+        "SrcT": {
+          "type": "DT_BOOL"
+        }
+      }
+    }, {
+      "name": "mul_1",
+      "op": "Mul",
+      "input": ["mul", "Cast"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "add",
+      "op": "AddV2",
+      "input": ["x", "mul_1"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "strided_slice_2/stack",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAAAwAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice_2/stack_1",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AAAAAAAAAAAAAAAABAAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice_2/stack_2",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_INT32",
+            "tensorShape": {
+              "dim": [{
+                "size": "4"
+              }]
+            },
+            "tensorContent": "AQAAAAEAAAABAAAAAQAAAA=="
+          }
+        },
+        "dtype": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "strided_slice_2",
+      "op": "StridedSlice",
+      "input": ["add", "strided_slice_2/stack", "strided_slice_2/stack_1", "strided_slice_2/stack_2"],
+      "attr": {
+        "shrink_axis_mask": {
+          "i": "0"
+        },
+        "ellipsis_mask": {
+          "i": "0"
+        },
+        "begin_mask": {
+          "i": "7"
+        },
+        "new_axis_mask": {
+          "i": "0"
+        },
+        "end_mask": {
+          "i": "7"
+        },
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "Index": {
+          "type": "DT_INT32"
+        }
+      }
+    }, {
+      "name": "MaxPool2d_1",
+      "op": "MaxPool",
+      "input": ["strided_slice_2"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        },
+        "data_format": {
+          "s": "TkhXQw=="
+        },
+        "strides": {
+          "list": {
+            "i": ["1", "1", "1", "1"]
+          }
+        },
+        "explicit_paddings": {
+          "list": {}
+        },
+        "ksize": {
+          "list": {
+            "i": ["1", "3", "3", "1"]
+          }
+        },
+        "padding": {
+          "s": "U0FNRQ=="
+        }
+      }
+    }, {
+      "name": "Greater_1/y",
+      "op": "Const",
+      "attr": {
+        "value": {
+          "tensor": {
+            "dtype": "DT_FLOAT",
+            "tensorShape": {},
+            "floatVal": [0.1]
+          }
+        },
+        "dtype": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "Greater_1",
+      "op": "Greater",
+      "input": ["MaxPool2d_1", "Greater_1/y"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "and",
+      "op": "LogicalAnd",
+      "input": ["Greater", "Greater_1"]
+    }, {
+      "name": "Cast_1",
+      "op": "Cast",
+      "input": ["and"],
+      "attr": {
+        "DstT": {
+          "type": "DT_FLOAT"
+        },
+        "SrcT": {
+          "type": "DT_BOOL"
+        },
+        "Truncate": {
+          "b": false
+        }
+      }
+    }, {
+      "name": "mul_2",
+      "op": "Mul",
+      "input": ["add", "Cast_1"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }, {
+      "name": "Identity",
+      "op": "Identity",
+      "input": ["mul_2", "^sequential_4/conv2d_8/BiasAdd/ReadVariableOp", "^sequential_4/conv2d_8/Conv2D/ReadVariableOp", "^sequential_4/conv2d_9/BiasAdd/ReadVariableOp", "^sequential_4/conv2d_9/Conv2D/ReadVariableOp"],
+      "attr": {
+        "T": {
+          "type": "DT_FLOAT"
+        }
+      }
+    }],
+    "versions": {
+      "producer": "1.14",
+      "minConsumer": "1.14"
+    }
+  },
+  "weightsManifest": []
+}

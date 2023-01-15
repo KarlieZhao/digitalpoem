@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>New CharActers</title>
+
+  <link rel="stylesheet" href="../style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.3.0/dist/tf.min.js"></script>
+  <!-- <script src="rita.js"></script> -->
+  <script src="https://unpkg.com/rita"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cnchar/cnchar.min.js"></script>
+
+</head>
+
+<body>
+  <div id="container" style="line-height:0.85em;  letter-spacing: -0.2em"></div>
+  <!-- style= "line-height:0.7em;  letter-spacing: -0.3em" -->
+  <canvas id='canvas' class="center" style="display: inline-block; margin-left: 20%; margin-top: 5%; border: 1px solid black; image-rendering: pixelated;"></canvas>
+  <p class="center" style="font-size: 20px; font-style: bold; letter-spacing: 0.3em">
+    繁化簡體字 <br> Tradiplified Chinese<br>
+    <button type="button" id="bt" onclick="playPause()">Click me to pause</button>
+  </p>
+  <br><br>
+
+
+  <script>
+    "use strict";
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const parseConsts = model_graph => {
+      const dtypes = {
+        'DT_INT32': ['int32', 'intVal', Int32Array],
+        'DT_FLOAT': ['float32', 'floatVal', Float32Array]
+      };
+
+      const consts = {};
+      model_graph.modelTopology.node.filter(n => n.op == 'Const').forEach((node => {
+        const v = node.attr.value.tensor;
+        const [dtype, field, arrayType] = dtypes[v.dtype];
+        if (!v.tensorShape.dim) {
+          consts[node.name] = [tf.scalar(v[field][0], dtype)];
+        } else {
+          // if there is a 0-length dimension, the exported graph json lacks "size"
+          const shape = v.tensorShape.dim.map(d => (!d.size) ? 0 : parseInt(d.size));
+          let arr;
+          if (v.tensorContent) {
+            const data = atob(v.tensorContent);
+            const buf = new Uint8Array(data.length);
+            for (var i = 0; i < data.length; ++i) {
+              buf[i] = data.charCodeAt(i);
+            }
+            arr = new arrayType(buf.buffer);
+          } else {
+            const size = shape.reduce((a, b) => a * b);
+            arr = new arrayType(size);
+            if (size) {
+              arr.fill(v[field][0]);
+            }
+          }
+          consts[node.name] = [tf.tensor(arr, shape, dtype)];
+        }
+      }));
+      return consts;
+    }
+
+    const setup = async () => {
+      var files = [];
+      files[0] = "feng_trad";
+      files[1] = "hu";
+      files[2] = "ye_double_14000";
+      files[3] = "jiang";
+      files[4] = "wang";
+      files[5] = "xie";
+
+      var consts = [];
+      var models = [];
+
+      for (let i = 0; i < files.length; i++) {
+        var r = await fetch("data/" + files[i] + ".json");
+        consts[i] = parseConsts(await r.json());
+        models[i] = await tf.loadGraphModel("data/" + files[i] + ".json");
+        Object.assign(models[i].weights, consts[i]);
+      }
+
+      let initial_seed = new Array(16).fill(0);
+      initial_seed = tf.tensor(initial_seed, [1, 1, 1, 16]);
+
+      let seed = new Array(16).fill(0).map((x, i) => i < 3 ? 0 : 1);
+      seed = tf.tensor(seed, [1, 1, 1, 16]);
+
+      const D = 96;
+      const H = 96 / 2;
+
+      const initState = tf.tidy(() => {
+        const D2 = D / 2;
+        const H2 = H / 2;
+        const a = initial_seed.pad([
+          [0, 0],
+          [H2 - 1, H2], //height
+          [D2 - 1, D2], //width
+          [0, 0]
+        ]); //fill in the array (?
+        return a;
+      });
+
+      const state = tf.variable(initState);
+      const [_, h, w, ch] = state.shape; // => shape of the initial state tensor: (4,2)
+
+      const damage = (x, y, r) => {
+        tf.tidy(() => {
+          const rx = tf.range(0, w).sub(x).div(r).square().expandDims(0);
+          const ry = tf.range(0, h).sub(y).div(r).square().expandDims(1);
+          const mask = rx.add(ry).greater(1.0).expandDims(2);
+          state.assign(state.mul(mask));
+        });
+      }
+
+      const plantSeed = (x, y) => {
+        const x2 = w - x - seed.shape[2]; //seed => [1,1,1,16]
+        const y2 = h - y - seed.shape[1];
+        if (x < 0 || x2 < 0 || y2 < 0 || y2 < 0)
+          return;
+        tf.tidy(() => {
+          const a = seed.pad([
+            [0, 0],
+            [y, y2],
+            [x, x2], //(x+x2) has to be (w-seed.shape[2]) which equals to w-1; but if add a to x and subtract it back on x2, the seed will move a cells to the left
+            [0, 0]
+          ]);
+          state.assign(state.add(a));
+        });
+      }
+
+      const scale = 4;
+
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.width = `${w*scale}px`;
+      canvas.style.height = `${h*scale}px`;
+      canvas.style.display = 'block';
+
+      canvas.style.marginLeft = "28%";
+      canvas.style.marginRight = "5%";
+
+      canvas.onmousedown = e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        console.log(x + "," + y);
+        if (e.buttons == 1) {
+          if (e.shiftKey) {
+            plantSeed(x, y);
+          } else {
+            damage(x, y, 5);
+          }
+        }
+      }
+      canvas.onmousemove = e => {
+        const rect = canvas.getBoundingClientRect();
+
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        if (e.buttons == 1 && !e.shiftKey) {
+          damage(x, y, 5);
+        }
+      }
+      var stepcount = 0;
+      var plantY = h / 2;
+
+      var modelIndex = 0;
+      var stepcount = 0;
+
+      function step() {
+        tf.tidy(() => { //tf.tidy() dispose the non-returned results/tensors
+          state.assign(models[modelIndex].execute({
+            x: state,
+            fire_rate: tf.tensor(0.5), //borning rate?
+            angle: tf.tensor(0.0), //rotation angle
+            step_size: tf.tensor(1.0)
+          }, ['Identity']));
+        });
+      }
+
+      let seedx = 30;
+      let seedx_initial = 30;
+      let seedy = 15;
+      let lineH = 30;
+      let spacing = 60;
+
+      var container = document.getElementById('container');
+
+      let text =
+        "一九二八年的故事，这故事，我讲了好几次。而每当我读了一节关于学生运动记载的文章之后，我就想起那年在哈尔滨的学生运动，那时候我是一个女子中学里的学生，是开始接近冬天的季节。我们是在二层楼上有着壁炉的课室里面读着英文课本。因为窗子是装着双重玻璃，起初使我们听到的声音是从那小小的通气窗传进来的。英文教员在写着一个英文字，他回一回头，他看一看我们，可是接着又写下去，一个字终于没有写完，外边的声音就大了，玻璃窗子好像在雨天里被雷声在抖着似的那么轰响。短板墙以外的石头道上在呼叫着的，有那许多人，我从来没有见过，使我想像到军队，又想到马群，又想像到波浪，……总之对于这个我有点害怕。校门前跑而后又看到了女校长的发青的脸， 她的眼和星子似的闪动在她的恐惧中。「 你们跟着去吧！ 要守秩序！」 她好像被鹰类捉拿到的鸡似的软弱， 她是被拖在两个戴大帽子的童子军的臂膀上。我们四百多人在大操场上排着队的时候， 那些男同学们还满院子跑着， 搜索着， 好像对于小偷那种形式， 侮辱！ 侮辱！ 他们竟搜索到厕所。女校长那混蛋， 刚一脱离了童子军的臂膀， 她又恢复了那假装着女皇的架子。「 你们跟他们去， 要守秩序， 不能破格…… 不能和那些男学生们那样没有教养， 那么野蛮……」 而后她抬起一只袖子来：「 你们知道你们是女学生吗？ 记得住吗？ 是女学生。」在男学生们的面前， 她又说了那样的话， 可是一出校门不远， 连对这侮辱的愤怒都忘记了。 向着喇嘛台， 向着火车站。 小学校， 中学校， 大学校， 几千人的行列…… 那时我觉得我是在这几千人之中， 我觉得我的脚步很有力。 凡是我看到的东西， 已经都变成了严肃的东西， 无论马路上的石子， 或是那已经落了叶子的街树。 反正我是站在「 打倒日本帝国主义」 的喊声中了。走向火车站必得经过日本领事馆。 我们正向着那座红楼咆哮着的时候， 一个穿和服的女人打开走廊的门扇而出现在闪烁的阳光里。 于是那「 打倒日本帝国主义」 的大叫改为「 就打倒你」！ 她立刻就把身子抽回去了。 那座红楼完全停在寂静中， 只是楼顶上的太阳旗被风在折合着。 走在石头道街又碰到了一个日本女子， 她背上背着一个小孩， 腰间束了一条小白围裙， 围裙上还带着花边， 手中提着一棵大白菜。 我们又照样做了， 不说「 打倒日本帝国主义」 而说「 就打倒你！」 因为她是走马路的旁边， 我们就用手指着她而喊着。 另一方面， 我们又用自己光荣的情绪去体会她狼狈的样子。 第一天叫做「 游行」、「 请愿」， 道里和南岗去了两部分市区。 这市区有点像租界， 住民多是外国人。长官公署， 教育厅都去过了， 只是「 官们」 出来拍手击掌地演了一篇说， 结果还是：「 回学校去上课罢！」日本要完成吉敦路１这件事情， 究竟「 官们」 没有提到。 在黄昏里，大队分散在道尹公署的门前，在那个孤立着的灰色的建筑物前面，装置着一个大圆的类似喷水池的东西。有一些同学就坐在那边沿上，一直坐到星子们在那建筑物的顶上闪亮了，那个“道尹”究竟还没有出来，只看见卫兵在台阶上，在我们的四围挂着短枪来回地在戒备着。而我们则流着鼻涕，全身打着抖在等候着。到底出来了一个姨太太，那声音我们一点也听不见。男同学们跺着脚，并且叫着，在我听来已经有点野蛮了：不要她……去……去……只有官僚才要她……接着又换了个大太太（谁知道是什么，反正是个老一点的），不甚胖，有点短。至于说些什么，恐怕也只有她自己的圆肚子才能够听到。这还不算什么惨事，我一回头看见了有几个女同学尿了裤子的（因为一整天没有遇到厕所的原故）。第二天没有男同学来攫，是自动出发的，在南岗下许公路的大空场子上开的临时会议，这一天不是“游行”，不是“请愿”而要“示威”了。脚踏车队在空场四周绕行着，学生联合会的主席是个很大的脑袋的人，也没有戴帽子，只戴了一架眼镜。那天是个落着清雪的天气，他的头发在雪花里边飞着。他说的话使我很佩服，因为我从来没有晓得日本还与我们有这样大的关系，他说日本若完成了吉敦路可以向东三省进兵，他又说又经过高丽又经过什么……并且又听说他进兵进得那样快，也不是二十几小时？就可以把多少大兵向我们的东三省开来，就可以灭我们的东三省。我觉得他真有学问，由于崇敬的关系，我觉得这学联主席与我隔得好象大海那么远。组织宣传队的时候，我站过去，我说我愿意宣传。别人都是被推举的，而我是自告奋勇的。于是我就站在雪花里开始读着我已经得到的传单。而后有人发给我一张小旗，过一会又有人来在我的胳膊上用扣针给我别上条白布，那上面还卡着红色的印章，究竟那红印章是什么字，我也没有看出来。大队开到差不多是许公路的最终极，一转弯一个横街里去，那就是滨江县的管界。因为这界限内住的纯粹是中国人，和上海的华界差不多。宣传队走在大队的中间，我们前面的人已经站住了，并且那条横街口站着不少的警察，学联代表们在大队的旁边跑来跑去。昨天晚上他们就说：“冲！冲！”我想这回就真的到了冲的时候了吧？学联会的主席从我们的旁边经过，他手里提着一个银白色的大喇叭筒，他的嘴接到喇叭筒的口上，发出来的声音好象牛鸣似的：诸位同学！我们是不是有血的动物？我们愿不愿意我们的老百姓给日本帝国主义做奴才……而后他跳着，因为激动，他把喇叭筒象是在向着天空，“我们有决心没有？我们怕不怕死？”不怕！虽然我和别人一样地嚷着不怕，但我对这新的一刻工夫就要来到的感觉好象一棵嫩芽似的握在我的手中。那喇叭的声音到队尾去了，虽然已经遥远了，但还是能够震动我的心脏。我低下头去看着我自己的被踏污了的鞋尖，我看着我身旁的那条阴沟，我整理着我的帽子，我摸摸那帽顶的毛球。没有束围巾，也没有穿外套。对于这个给我生了一种侥幸的心情！冲的时候，这样轻便不是可以飞上去了吗？”昨天计划今天是要“冲”的，但不知为什么，我总觉得我有点特别聪明。　大喇叭筒跑到前面去时，我就闪开了那冒着白色泡沫的阴沟，我知道“冲”的时候就到了。我只感到我的心脏在受着拥挤，好象我的脚跟并没有离开地面而自然它就会移动似的。我的耳边闹着许多种声音，那声音并不大，也不远，也不响亮，可觉得沉重，带来了压力，好象皮球被穿了一个小洞嘶嘶的在透着气似的，我对我自己毫没有把握。有决心没有？有决心！怕死不怕死？不怕死。这还没有反复完，我们就退下来了。因为是听到了枪声，起初是一两声，而后是接连着。大队已经完全溃乱下来，只一秒钟，我们旁边那阴沟里，好象猪似的浮游着一些人。女同学被拥挤进去的最多，男同学在往岸上提着她们，被提的她们满身带着泡沫和气味，她们那发疯的样子很可笑，用那挂着白沫和糟粕的戴着手套的手搔着头发，还有的象已经癫痫的人似的，她在人群中不停地跑着：那被她擦过的人们，他们的衣服上就印着各种不同的花印。大队又重新收拾起来，又发着号令，可是枪声又响了，对于枪声，人们象是看到了火花似的那么热烈。至于“打倒日本帝国主义”，“反对日本完成吉敦路”这事情的本身已经被人们忘记了，唯一所要打倒的就是滨江县政府。到后来连县政府也忘记了，只“打倒警察；打倒警察……”这一场斗争到后来我觉得比一开头还有趣味。在那时，“日本帝国主义”，我相信我绝对没有见过，但是警察我是见过的，于是我就嚷着：打倒警察，打倒警察！我手中的传单，我都顺着风让它们飘走了，只带着一张小白旗和自己的喉咙从那零散下来的人缝中穿过去。那天受轻伤的共有二十几个。我所看到的只是从他们的身上流下来的血还凝结在石头道上。满街开起电灯的夜晚，我在马车和货车的轮声里追着我们本校回去的队伍，但没有赶上。我就拿着那卷起来的小旗走在行人道上，我的影子混杂着别人的影子一起出现在商店的玻璃窗上，我每走一步，我看到了玻璃窗里我帽顶的毛球也在颤动一下。男同学们偶尔从我的身边经过，我听到他们关于受伤的议论和救急车。第二天的报纸上躺着那些受伤的同学们的照片，好象现在的报纸上躺的伤兵一样。以后，那条铁路到底完成了。";
+
+      let gp1 = [];
+      let gp2 = [];
+      let gp3 = [];
+      let gp4 = [];
+
+      let newText = "";
+
+      const charArray = (text) => {
+        for (var i = 0; i < text.length; i++) {
+          let c = text.charAt(i);
+          var re = /[。，！？「」… .()]/;
+
+          if (!re.exec(c)) {
+            let strokeCount = c.stroke();
+
+            if (strokeCount <= 5) {
+              gp1.push(c);
+            } else if (strokeCount <= 9) {
+              gp2.push(c);
+            } else if (strokeCount <= 15) {
+              gp3.push(c);
+            } else {
+              gp4.push(c);
+            }
+            newText += c + " ";
+          }
+        }
+      };
+
+      charArray(text);
+      // console.log(newText);
+
+      let ngrams = RiTa.markov(3);
+
+      ngrams.addText(newText);
+      let sents = ngrams.generate(5);
+      console.log(sents);
+
+
+      function writeCA() {
+        //write in colour data
+        const imageData = tf.tidy(() => {
+          const rgba = state.slice([0, 0, 0, 0], [-1, -1, -1, 4]);
+          const a = state.slice([0, 0, 0, 3], [-1, -1, -1, 1]);
+          const img = tf.tensor(1.0).sub(a).add(rgba).mul(255);
+          const rgbaBytes = new Uint8ClampedArray(img.dataSync()); //length: 4*w*h => rgba
+          return new ImageData(rgbaBytes, w, h);
+        });
+
+        var my_html = '';
+        var charCount = 0;
+
+        var gp1Index = 0;
+        var gp2Index = 0;
+        var gp3Index = 0;
+        var gp4Index = 0;
+
+        for (let i = 0; i < imageData.data.length; i += 4) { //ignore alpha channels
+          let grey = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+          let red = imageData.data[i];
+          // if (red >= 50 && grey <= 80) { // my_html +='<span style="color:red;">' ; // }
+          if (grey < 80) {
+            my_html += gp1[gp1Index];
+            gp1Index++;
+            gp1Index = gp1Index % gp1.length;
+
+          } else if (grey < 100) {
+            my_html += gp2[gp2Index];
+            gp2Index++;
+            gp2Index = gp2Index % gp2.length;
+          } else if (grey < 150) {
+            my_html += gp3[gp3Index];
+            gp3Index++;
+            gp3Index = gp3Index % gp3.length;
+
+          } else {
+            my_html += gp4[gp4Index];
+            gp4Index++;
+            gp4Index = gp4Index % gp4.length;
+
+          }
+          // if (red >= 50 && grey <= 80) {
+          //   my_html += '</span>';
+          // }
+
+          charCount++;
+          if (charCount == D) {
+            charCount = 0;
+            my_html += '<br>';
+          }
+        }
+        container.innerHTML = my_html;
+
+        ctx.putImageData(imageData, 0, 0);
+      }
+
+      function render() {
+        //update every frame
+        if (isPlaying && stepcount % 20 == 0) {
+          step();
+        }
+        stepcount++;
+        //-------------
+        writeCA();
+        requestAnimationFrame(render);
+      }
+
+      plantSeed(w / 2, h / 2);
+      render();
+
+    }
+    setup();
+
+    let isPlaying = true;
+
+    function playPause() {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        document.getElementById("bt").innerHTML = "Click me to pause";
+      } else {
+        document.getElementById("bt").innerHTML = "Click again to continue";
+
+      }
+    }
+  </script>
+
+  <!-- Page footer -->
+  <footer>
+
+    <p style=" position: fixed;left: 0;
+   bottom: 0; width: 98%; text-align: right;font-size: 5px;">KARLIE ZHAO @2021
+    </p>
+  </footer>
+</body>
+
+
+</html>

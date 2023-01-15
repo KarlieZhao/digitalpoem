@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>New CharActers</title>
+
+  <link rel="stylesheet" href="../animate.min.css" />
+  <link rel="stylesheet" href="../bootstrap.css" />
+  <link rel="stylesheet" href="../bootstrap.min.css" />
+  <link rel="stylesheet" href="../style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.3.0/dist/tf.min.js"></script>
+
+</head>
+
+<body>
+  <div class="index_center">
+    <canvas id='canvas0' style="border: 2px solid #ededeb ">0</canvas>
+
+    <p style="font-size: 20px; font-style: bold; letter-spacing: 0.3em">
+      讀不出的桑田滄海，沧海桑田
+    </p>
+    <p>The Illegible Strokes and Its Own Vicissitudes
+    </p>
+    <br><br><br><br><br>
+
+  </div>
+
+  <div class="leftFloating leftCol">
+    <ul>
+      <li> <a href="char_demo.html">Single Character Example | 細胞自動機示例</a>
+      <li> <a href="multi_chars.html">Experiment #1 Tradiplified Chinese | 繁化簡體字 </a>
+      <li> <a href="new_characters.html"> Experiment #2 New Characters | 新漢字 </a><br>
+      <li> <a href="../index.html" class="b2mp">Back to main page | 返回主頁</a>
+      <li> <a href="https://observablehq.com/@wenrazhao2/final-project-documentation" target="_blank"> Research, writing, and documentation | 記錄與反思 </a><br>
+    </ul>
+  </div>
+  <div class="rightFloating main description">
+
+    <br>
+    <span style="font-size: 14px; font-style:italic;"> Code Art, Generative Art <br>
+      Karlie Zhao 趙文然 <br>
+      2021 <br>
+      Variable Size <br><br>
+    </span><br>
+    If your computer's fan is running insanely fast and you feel your cpu is going to burn,
+    <button type="button" id="bt" onclick="playPause()">Click me to pause</button> the above script.
+    <br><br>
+    “滄海桑田” is an idiom in Chinese, referring to the wide sea (滄海) and fields for planting crops (桑田) in literal.
+    But these two words are often used as a whole, describing the “great changes are seen in the course of time”, the
+    transformations of the worldly things are like the sea turning into a farming field.
+    <br><br>
+    Somehow I found it is also appropriate for describing the ever-changing forms of characters.
+    In this experimental work, I train the NCA model with
+    images of the word “桑田滄海” in the seal, traditional and simplified scripts. The alignments of the
+    characters vary from script to script, according to their user’s common writing habits.
+    As the pictures shown below, the words in the seal script are vertically aligned, read from right to left,
+    while the simplified version is aligned horizontally, as how people read today. <br>
+    <br>
+    <br>
+    <img src="demo_images/chst_seal_highres.png" style="margin-right: 1em;"></img>
+    <img src="demo_images/chst_trad_highres.png" style="margin-right: 1em;"></img>
+    <img src="demo_images/chst_sim_highres.png" style="margin-right: 1em;"></img>
+    <img src="demo_images/sangtian_sim_highres.png" style="margin-right: 1em;"></img>
+    <img src="demo_images/canghai_seal_highres.png" style="margin-right: 1em;"></img>
+    <br>
+    <br>
+    After training the model for a couple of hours, I ended up with dozens of JSON files containing the rules to drive the CA.
+
+    Those files were exported after the models were trained for 1000, 2000...16,000 steps.
+    With the number of the steps increasing, the ability of the CA to generate given patterns and to recover the damage get improved.
+    However, what we want probably is not a perfect rule that can accurately generate the original characters and recover any damage without errors.
+    What we are expecting might be some stages in between, where sometimes glitches happen and surprises emerge.
+    Therefore, I selected some of the models that can be executed by the CA quite stably, but meanwhile has certain cells oscillating between different states.
+    <br><br>
+    The CA model starts with generating the seal script version of the words but jumps to another random rule from time to time,
+    generating another script based on the current active cells.
+    <br>
+    <br>
+    While neither the CA nor the neural network knows a thing about Chinese characters,
+    they create some interesting and unexpected patterns. Sometimes characters travel from one place to another,
+    sometimes they expand and other times they collapse,
+    blended together and become indistinguishable. <br>
+    <br>
+    <img src="demo_images/pattern_1.png" style="width: 25%;  vertical-align: middle; margin-right: 1em;"></img>
+    <img src="demo_images/pattern_2.png" style="width: 30%; margin-right: 1em;vertical-align: middle;"></img>
+    <img src="demo_images/pattern_3.png" style="width: 30%; margin-right: 1em;vertical-align: middle;"></img>
+    <br><br>
+
+    You can also press your left mouse button on the canvas to interact with it. The misty greyscale shade is so
+    reminiscent of Chinese calligraphy and ink painting.
+    <br> <br>
+    One thing that I found very interesting about cellular automata is the complexity sometimes shown in its behaviour, classified as class 4 by Stephen Wolfram. Local changes to the initial pattern may spread indefinitely, leading to completely
+    different results. However, it can be tricky to design the rules and initial states of the cells.
+    <br>
+    <br>
+    The neural network, in another way, makes up for this deficiency. Each time you run this page, you will get a dynamic visual that is entirely different from any other ones that you previously get. Actually, the outcome in each run is
+    unique and hard to reproduce.
+    There are so many possibilities, and anything could happen, just due to the tiny uncertainty of the initial cells' states.
+    <br>
+    <br>
+    而且我又有這樣的設想：也許五十年後，由於科學進步，電子打字機普遍了，漢字不再是機械化的障礙，而由於教學法的改進，認為漢字也不像現在那樣費時，那麼，「輿論」也許又變了方向，以為保存數千年的民族文字（漢字）是必要的了。
+    ——茅盾
+    <br><br><br><br>
+    <br><br><br><br>
+
+  </div>
+
+  <script>
+    "use strict";
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    var modelIndex = 0;
+    const parseConsts = model_graph => {
+      const dtypes = {
+        'DT_INT32': ['int32', 'intVal', Int32Array], //Int32Array: 32 bytes, signed, int array
+        'DT_FLOAT': ['float32', 'floatVal', Float32Array]
+      };
+
+      const consts = {};
+
+      model_graph.modelTopology.node.filter(n => n.op == 'Const').forEach((node => {
+        const v = node.attr.value.tensor;
+        const [dtype, field, arrayType] = dtypes[v.dtype];
+        if (!v.tensorShape.dim) { //=> dim > 0
+          consts[node.name] = [tf.scalar(v[field][0], dtype)];
+        } else {
+          // if there is a 0-length dimension, the exported graph json lacks "size"
+          const shape = v.tensorShape.dim.map(d => (!d.size) ? 0 : parseInt(d.size)); //dimension => size?
+
+          let arr;
+
+          if (v.tensorContent) { //if it's not empty
+            const data = atob(v.tensorContent); //atob => "decode" in some way...
+            const buf = new Uint8Array(data.length); //new ArrayBuffer(length): byte
+
+            for (var i = 0; i < data.length; ++i) {
+              //data => integer values
+              buf[i] = data.charCodeAt(i);
+              // Size must match the product of shape
+            }
+
+            arr = new arrayType(buf.buffer);
+
+          } else { //if v.tensorContent is null => 40 nodes in total
+            const size = shape.reduce((a, b) => a * b);
+            arr = new arrayType(size);
+            if (size) {
+              arr.fill(v[field][0]);
+            }
+          }
+
+          consts[node.name] = [tf.tensor(arr, shape, dtype)];
+          //consts =>{node.name: tensor}
+        }
+      }));
+      return consts;
+    }
+
+    const setup = async () => {
+      var files = [];
+
+      files[1] = "canghai_seal_15000";
+      // files[1] = "sangtian_seal_15000";
+      files[2] = "canghai_trad_12000";
+      files[3] = "sangtian_trad_15000";
+      files[4] = "sangtian_sim_15000";
+      files[5] = "canghai_sim_15000";
+
+      files[0] = "chst_seal_15000";
+      files[6] = "chst_trad_20000";
+      files[7] = "chst_new_20000";
+
+      const D = 96 * 1.5;
+      const D2 = D;
+      const Dy = D / 2;
+
+      let seed = new Array(16).fill(0).map((x, i) => i < 3 ? 0 : 1);
+      seed = tf.tensor(seed, [1, 1, 1, 16]);
+
+      const initState = tf.tidy(() => {
+        const a = seed.pad([
+          [0, 0],
+          [Dy - 1, Dy], //height
+          [D2 - 1, D2], //width
+          [0, 0]
+        ]);
+        return a;
+      });
+
+      var consts = [];
+      var models = [];
+
+      for (let i = 0; i < files.length; i++) {
+        var r = await fetch("data/" + files[i] + ".json");
+        consts[i] = parseConsts(await r.json());
+        models[i] = await tf.loadGraphModel("data/" + files[i] + ".json");
+        Object.assign(models[i].weights, consts[i]);
+      }
+      //model weights are all the parameters (including trainable and non-trainable) of the model
+      // which are in turn all the parameters used in the layers of the model
+
+      const state = tf.variable(initState);
+      const [_, h, w, ch] = state.shape; // => shape of the initial state tensor: (4,2)
+
+      const damage = (x, y, r) => {
+        tf.tidy(() => {
+          const rx = tf.range(0, w).sub(x).div(r).square().expandDims(0);
+          const ry = tf.range(0, h).sub(y).div(r).square().expandDims(1);
+          const mask = rx.add(ry).greater(1).expandDims(2);
+          state.assign(state.mul(mask));
+        });
+      }
+
+      const plantSeed = (x, y) => {
+        const x2 = w - x - seed.shape[2]; //seed => [1,1,1,16]
+        const y2 = h - y - seed.shape[1];
+        if (x < 0 || x2 < 0 || y2 < 0 || y2 < 0)
+          return;
+        tf.tidy(() => {
+          const a = seed.pad([
+            [0, 0],
+            [y, y2],
+            [x, x2], //(x+x2) has to be (w-seed.shape[2]) which equals to w-1; but if add a to x and subtract it back on x2, the seed will move a cells to the left
+            [0, 0]
+          ]);
+          state.assign(state.add(a));
+        });
+      }
+
+      const scale = 4;
+
+      const canvas = document.getElementById(`canvas0`);
+      const ctx = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
+
+      canvas.style.width = `${w*scale}px`;
+      canvas.style.height = `${h*scale}px`;
+      canvas.style.display = 'inline-block';
+
+      canvas.onmousedown = e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        if (e.buttons == 1) {
+          damage(x, y, 5);
+        }
+      }
+      canvas.onmousemove = e => {
+        const rect = canvas.getBoundingClientRect();
+
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        if (e.buttons == 1 && !e.shiftKey) {
+          damage(x, y, 5);
+        }
+      }
+
+      function step() {
+        //state => shape=[1,96(h),96(w),16]
+        tf.tidy(() => {
+          state.assign(models[modelIndex].execute({ //.execute(inputs, outputs)
+            x: state,
+            fire_rate: tf.tensor(0.5), //borning rate?
+            angle: tf.tensor(0.0), //rotation angle
+            step_size: tf.tensor(1.0),
+          }, ['Identity']));
+        });
+      }
+
+      function render() {
+        if (isPlaying) {
+          stepcount++;
+          // if (stepcount % 2 == 0) {
+            step();
+          // }
+        }
+
+        if (stepcount % timeout == 0) {
+          stepcount = 0;
+          modelIndex = Math.floor(Math.random() * files.length);
+          if (timeout <= 600) {
+            timeout += 50;
+          }
+          console.log(timeout);
+        }
+
+        //write in colour data
+        let isEmpty = 0;
+
+        const imageData = tf.tidy(() => {
+          const rgba = state.slice([0, 0, 0, 0], [-1, -1, -1, 4]);
+          const a = state.slice([0, 0, 0, 3], [-1, -1, -1, 1]);
+          const img = tf.tensor(1.0).sub(a).add(rgba).mul(255);
+          const rgbaBytes = new Uint8ClampedArray(img.dataSync()); //length: 4*w*h => rgba
+          return new ImageData(rgbaBytes, w, h);
+        });
+
+        for (let i = 0; i < imageData.data.length; i += 4) { //ignore alpha channels
+          let grey = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+          imageData.data[i + 0] = grey;
+          imageData.data[i + 1] = grey;
+          imageData.data[i + 2] = grey;
+          if (grey == 255) {
+            isEmpty++;
+          }
+        }
+        //console.log(isEmpty); //41472
+        ctx.putImageData(imageData, 0, 0);
+
+        if (isEmpty >= 40000 && !cooling) {
+          cooling = true;
+          plantSeed(w / 2, h / 2);
+          //console.log("new seed");
+        } else if (cooling) {
+          coolingTime++;
+          if (coolingTime == 200) {
+            coolingTime = 0;
+            cooling = false;
+          }
+        }
+        requestAnimationFrame(render);
+      }
+      render();
+    }
+    setup();
+
+    let coolingTime = 0;
+    let cooling = true;
+
+    let stepcount = 0;
+    let timeout = 370;
+    let isPlaying = true;
+
+    function playPause() {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        document.getElementById("bt").innerHTML = "Click me to pause";
+      } else {
+        document.getElementById("bt").innerHTML = "Click again to continue";
+      }
+    }
+  </script>
+
+  <!-- Page footer -->
+  <footer>
+
+    <p style=" position: fixed;left: 0;
+   bottom: 0; width: 98%; text-align: right;font-size: 10px;">KARLIE ZHAO @2021
+    </p>
+  </footer>
+</body>
+
+</html>

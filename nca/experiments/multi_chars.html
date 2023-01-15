@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>New CharActers</title>
+
+  <link rel="stylesheet" href="../animate.min.css" />
+  <link rel="stylesheet" href="../bootstrap.css" />
+  <link rel="stylesheet" href="../bootstrap.min.css" />
+  <link rel="stylesheet" href="../style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.3.0/dist/tf.min.js"></script>
+
+</head>
+
+<body>
+  <canvas id='canvas' class="center" style="width: 768px; height: 768px; display: block; margin-left: 28%; margin-top: 2%; border: 1px solid black; image-rendering: pixelated; margin-right: 5%;">
+ </canvas>
+  <br>
+  <p class="center" style="font-size: 20px; font-style: bold; letter-spacing: 0.3em">
+    繁化簡體字 <br> Tradiplified Chinese</p>
+  <br><br>
+  <div class="leftFloating leftCol">
+    <ul>
+      <li> <a href="char_demo.html">Single Character Example | 細胞自動機示例</a>
+      <li> <a href="multi_chars.html">Experiment #1 Tradiplified Chinese | 繁化簡體字 </a>
+      <li> <a href="new_characters.html"> Experiment #2 New Characters | 新漢字 </a><br>
+      <li> <a href="../index.html" class="b2mp">Back to main page | 返回主頁</a>
+      <li> <a href="theillegiblestrokes.html"> Experiment #3 The Illegible Strokes and Its Own Vicissitudes | 讀不出的桑田滄海，沧海桑田 </a>
+      <li> <a href="https://observablehq.com/@wenrazhao2/final-project-documentation" target="_blank"> Research, writing, and documentation | 記錄與反思 </a><br>
+
+    </ul>
+  </div>
+
+  <div class="rightFloating main description">
+    If your computer's fan is running insanely fast and you feel your cpu is going to burn,
+    <button type="button" id="bt" onclick="playPause()">Click me to pause</button> the above script.
+    <br><br>
+    The history of reforming and simplifying Chinese characters is almost as long as the Chinese characters themselves.
+    In different dynasties, Chinese characters have undergone several great changes, from Oracle to the Seal script (篆书) and clerical script (隶书),
+    and finally to our familiar regular (楷書) traditional script and simplified Chinese.
+    Different from most western languages, the evolution of written Chinese was not just on the level of
+    typography, but more about changes on the structural side.
+    <br><br>
+    In the 1950s, the State Council of the People's Republic of China published the simplified norms of Chinese characters, marking the start of the largest reform of characters in modern Chinese history.
+    Around 2,200 characters are simplified, according to the record on the Simplified Chinese characters List (簡化字總表).
+    These characters, in general, are simplified following 6 manners:<br><br>
+    <ul>
+      <li>Cutting/simplifying a half (刪減片旁)
+      <li>New designed characters (新形聲字)
+      <li>Borrowing the writing from its homophones (同音假借)
+      <li>Following the ancient way of writing (從古)
+      <li>Following the folk way of writing (從俗)
+      <li>Following the writing of the Cursive script (草書楷化)
+      <li>Merging several characters into one way of writing (從俗合併)
+    </ul>
+    <br>
+
+    In this experiement, I selected the some representative characters that have been simplified according to the above 6 ways.
+    Those characters are listed below, the traditional version is on the left is the and the simplified version is on the right, as you might already can tell.
+    <br>
+    <br>
+    <span style="width: 20%;  margin-right: 4em;">
+      <img src="demo_images/tradiplified/bu.png"></img> Borrowing the writing from its homophones (同音假借) <br>
+      <img src="demo_images/tradiplified/hu.png"></img> New designed characters (新形聲字, 刪減片旁) <br>
+      <img src="demo_images/tradiplified/wang.png"></img> Following the ancient way of writing (Kangxi Dictionary, 1710) (從古, 康熙字典)<br>
+      <img src="demo_images/tradiplified/wei.png"></img> Following the folk way of writing; 卫 is introduced from Japan (从俗, “卫”從日本傳入)<br>
+      <img src="demo_images/tradiplified/xie.png"></img>Following the writing of the Cursive scirpt (草書楷化)<br>
+      <img src="demo_images/tradiplified/ye.png"></img>Merging several characters into one way of writing (從俗合併, 原字為“叶（shè）”公好龍)
+    </span>
+    <br><br>
+    The canvas will go through each character in turn, and for each character,
+    its traditional and simplified version will be aligned side by side, closed to each other. The layout makes the characters in the two script merge into one in a special way, indistinct from each other.
+    <br><br>
+    This is a quite rough prototype of what I really wanted to explore: the transformation from traditional Chinese to simplified, or vice versa, and the delicate bond between them.
+    How were the characters got simplified? Why were they simplified like this? What did we gain and lose from the simplification of Chinese characters?
+    <br><br>We need to notice that the evolution of Chinese characters is closely related to the historical background. But in contemporary society when technology started to dominate society, how will Chinese characters develop?
+
+    Will Chinese characters continue to be simplified? If so, then what would the ultimate form of simplified characters be like?
+    Or whether there will be one day, people started to complicate the characters again?
+    <br><br>
+    Further improvement: differentiable-morphogenesis / training with multiple targets. To be continued.
+    <br><br><br><br><br><br>
+
+  </div>
+
+  <script>
+    "use strict";
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const parseConsts = model_graph => {
+      const dtypes = {
+        'DT_INT32': ['int32', 'intVal', Int32Array],
+        'DT_FLOAT': ['float32', 'floatVal', Float32Array]
+      };
+
+      const consts = {};
+      model_graph.modelTopology.node.filter(n => n.op == 'Const').forEach((node => {
+        const v = node.attr.value.tensor;
+        const [dtype, field, arrayType] = dtypes[v.dtype];
+        if (!v.tensorShape.dim) {
+          consts[node.name] = [tf.scalar(v[field][0], dtype)];
+        } else {
+          // if there is a 0-length dimension, the exported graph json lacks "size"
+          const shape = v.tensorShape.dim.map(d => (!d.size) ? 0 : parseInt(d.size));
+          let arr;
+          if (v.tensorContent) {
+            const data = atob(v.tensorContent);
+            const buf = new Uint8Array(data.length);
+            for (var i = 0; i < data.length; ++i) {
+              buf[i] = data.charCodeAt(i);
+            }
+            arr = new arrayType(buf.buffer);
+          } else {
+            const size = shape.reduce((a, b) => a * b);
+            arr = new arrayType(size);
+            if (size) {
+              arr.fill(v[field][0]);
+            }
+          }
+          consts[node.name] = [tf.tensor(arr, shape, dtype)];
+        }
+      }));
+      return consts;
+    }
+
+    const setup = async () => {
+      var files = [];
+      files[0] = "bu";
+      files[1] = "hu";
+      files[2] = "ye_double_14000";
+      files[3] = "jiang";
+      files[4] = "wang";
+      files[5] = "xie";
+
+      var consts = [];
+      var models = [];
+
+      for (let i = 0; i < files.length; i++) {
+        var r = await fetch("data/" + files[i] + ".json");
+        consts[i] = parseConsts(await r.json());
+        models[i] = await tf.loadGraphModel("data/" + files[i] + ".json");
+        Object.assign(models[i].weights, consts[i]);
+      }
+
+      let initial_seed = new Array(16).fill(0);
+      initial_seed = tf.tensor(initial_seed, [1, 1, 1, 16]);
+
+      let seed = new Array(16).fill(0).map((x, i) => i < 3 ? 0 : 1);
+      seed = tf.tensor(seed, [1, 1, 1, 16]);
+
+      const D = 96 * 2;
+
+      const initState = tf.tidy(() => {
+        const D2 = D / 2;
+        const a = initial_seed.pad([
+          [0, 0],
+          [D2 - 1, D2], //height
+          [D2 - 1, D2], //width
+          [0, 0]
+        ]); //fill in the array (?
+        return a;
+      });
+
+      const state = tf.variable(initState);
+      const [_, h, w, ch] = state.shape; // => shape of the initial state tensor: (4,2)
+
+      const damage = (x, y, r) => {
+        tf.tidy(() => {
+          const rx = tf.range(0, w).sub(x).div(r).square().expandDims(0);
+          const ry = tf.range(0, h).sub(y).div(r).square().expandDims(1);
+          const mask = rx.add(ry).greater(1.0).expandDims(2);
+          state.assign(state.mul(mask));
+        });
+      }
+
+      const plantSeed = (x, y) => {
+        const x2 = w - x - seed.shape[2]; //seed => [1,1,1,16]
+        const y2 = h - y - seed.shape[1];
+        if (x < 0 || x2 < 0 || y2 < 0 || y2 < 0)
+          return;
+        tf.tidy(() => {
+          const a = seed.pad([
+            [0, 0],
+            [y, y2],
+            [x, x2], //(x+x2) has to be (w-seed.shape[2]) which equals to w-1; but if add a to x and subtract it back on x2, the seed will move a cells to the left
+            [0, 0]
+          ]);
+          state.assign(state.add(a));
+        });
+      }
+
+      const scale = 4;
+
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.style.width = `${w*scale}px`;
+      canvas.style.height = `${h*scale}px`;
+      canvas.style.display = 'block';
+
+      canvas.style.marginLeft = "28%";
+      canvas.style.marginRight = "5%";
+
+      canvas.onmousedown = e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        console.log(x + "," + y);
+        if (e.buttons == 1) {
+          if (e.shiftKey) {
+            plantSeed(x, y);
+          } else {
+            damage(x, y, 5);
+          }
+        }
+      }
+      canvas.onmousemove = e => {
+        const rect = canvas.getBoundingClientRect();
+
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        if (e.buttons == 1 && !e.shiftKey) {
+          damage(x, y, 5);
+        }
+      }
+      var stepcount = 0;
+      var plantY = h / 2;
+
+      var modelIndex = 1;
+      var stepcount = 0;
+
+      function step() {
+        tf.tidy(() => { //tf.tidy() dispose the non-returned results/tensors
+          state.assign(models[modelIndex].execute({
+            x: state,
+            fire_rate: tf.tensor(0.5), //borning rate?
+            angle: tf.tensor(0.0), //rotation angle
+            step_size: tf.tensor(1.0)
+          }, ['Identity']));
+        });
+      }
+
+      let seedx = 30;
+      let seedx_initial = 30;
+      let seedy = 15;
+      let lineH = 30;
+      let spacing = 60;
+
+      function render() {
+        //update every frame
+        if (isPlaying) {
+          step();
+          stepcount++;
+        }
+
+        if (stepcount % 100 == 0) {
+          // console.log(seedx + "," + seedy);
+          plantSeed(seedx, seedy);
+          seedx += spacing;
+          spacing -= spacing > 4 ? 1 : 0;;
+
+          if (seedy >= 180) {
+            seedy = 15;
+            seedx_initial = 30;
+            seedx = 30;
+            lineH = 30;
+            spacing = 60;
+
+            const x = tf.range(0, w).sub(seedx).div(w * 2).square().expandDims(0);
+            const y = tf.range(0, h).sub(seedy).div(h * 2).square().expandDims(1);
+            const clear = x.add(y).greater(1.0).expandDims(2);
+            state.assign(state.mul(clear));
+
+            modelIndex++;
+            modelIndex = modelIndex % files.length;
+
+          } else if (seedx >= 200) {
+            seedx_initial -= 4; // = seedx_initial == 15 ? 30 : 15;
+            seedx = seedx_initial;
+
+            //  spacing = 30;
+            seedy += lineH;
+            lineH -= lineH > 5 ? 2 : 0;
+          }
+        }
+
+        //write in colour data
+        const imageData = tf.tidy(() => {
+          const rgba = state.slice([0, 0, 0, 0], [-1, -1, -1, 4]);
+          const a = state.slice([0, 0, 0, 3], [-1, -1, -1, 1]);
+          const img = tf.tensor(1.0).sub(a).add(rgba).mul(255);
+          const rgbaBytes = new Uint8ClampedArray(img.dataSync()); //length: 4*w*h => rgba
+          return new ImageData(rgbaBytes, w, h);
+        });
+
+        ctx.putImageData(imageData, 0, 0);
+        //-------------
+
+        requestAnimationFrame(render);
+      }
+      render();
+
+    }
+    setup();
+
+    let isPlaying = true;
+
+    function playPause() {
+      isPlaying = !isPlaying;
+      if (isPlaying) {
+        document.getElementById("bt").innerHTML = "Click me to pause";
+
+      } else {
+        document.getElementById("bt").innerHTML = "Click again to continue";
+
+      }
+    }
+  </script>
+
+  <!-- Page footer -->
+  <footer>
+
+    <p style=" position: fixed;left: 0;
+   bottom: 0; width: 98%; text-align: right;font-size: 5px;">KARLIE ZHAO @2021
+    </p>
+  </footer>
+</body>
+
+
+</html>

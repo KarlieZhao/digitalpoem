@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>New CharActers</title>
+
+  <link rel="stylesheet" href="../animate.min.css" />
+  <link rel="stylesheet" href="../bootstrap.css" />
+  <link rel="stylesheet" href="../bootstrap.min.css" />
+  <link rel="stylesheet" href="../style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.3.0/dist/tf.min.js"></script>
+
+</head>
+
+<body>
+  <div class="center main">
+    <br>
+    <canvas id='canvas' style="margin-top: 5%; border: 1px solid black; image-rendering: pixelated; width: 384px; height: 384px; display: inline-block;"></canvas>
+
+    <br><br>
+    <button type="button" id="bt" onclick="nextModel()">Next</button>
+    <br><br><br>
+    <p style="font-size: 30px; font-style: bold;">
+      <span style="font-size: 50px;">N</span>ew <span style="font-size: 50px;">C</span>har<span style="font-size: 50px;">A</span>cters | 新漢字
+    </p>
+
+    <br><br>
+
+  </div>
+
+  <div class="leftFloating leftCol" style="margin-top: 2%">
+
+    <ul>
+      <li> <a href="char_demo.html">Single Character Example | 細胞自動機示例</a>
+      <li> <a href="multi_chars.html">Experiment #1 Tradiplified Chinese | 繁化簡體字 </a>
+      <li> <a href="../index.html" class="b2mp">Back to main page | 返回主頁</a>
+      <li> <a href="theillegiblestrokes.html"> Experiment #3 The Illegible Strokes and Its Own Vicissitudes | 讀不出的桑田滄海，沧海桑田 </a>
+      <li> <a href="https://observablehq.com/@wenrazhao2/final-project-documentation" target="_blank"> Research, writing, and documentation | 記錄與反思 </a><br>
+    </ul>
+  </div>
+
+
+  <div class="rightFloating main description">
+    <div style="margin-left: 5%">
+      Chinese characters, with its own special structural regulation, can be divided into different components according to their positioal arrangement.
+      So this is an experiment where I tried to divide the canvas into different parts and run multiple CA rules on one canvas.
+      Ideally, we may see parts of different characters communicate/merge with each other.
+      <br><br>
+      Unfortunatly, it might be a silly idea to run multiple rules on one CA, since this kind of automaton is designed for running one rule uniformly to all the cells.
+      Even though I tried to have multiple rules executed on one canvas, it turned out that the states of the cells in different rules cannot be shared.
+      This means, they cannot really communicate as expected.
+      <br><br>
+
+      I gave up working on this experiment very soon when I figure out the idea doesn't work, but still put the result here for documentation.
+      I'm also thinking about other ways to implement this idea...
+      <br><br>
+      Please <a href="mailto: karliedoesnotexist@gmail.com">leave a message </a>if you found this interesting, or have some suggestions. Much appreciated!
+
+      <br>
+      <br>
+      <br>
+      <br>
+
+    </div>
+  </div>
+
+
+  <script>
+    "use strict";
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    var modelIndex1 = 0;
+    var modelIndex2 = 1;
+
+    const parseConsts = model_graph => {
+      const dtypes = {
+        'DT_INT32': ['int32', 'intVal', Int32Array], //Int32Array: 32 bytes, signed, int array
+        'DT_FLOAT': ['float32', 'floatVal', Float32Array]
+      };
+
+      const consts = {};
+
+      model_graph.modelTopology.node.filter(n => n.op == 'Const').forEach((node => {
+        const v = node.attr.value.tensor;
+        const [dtype, field, arrayType] = dtypes[v.dtype];
+        if (!v.tensorShape.dim) { //=> dim > 0
+          consts[node.name] = [tf.scalar(v[field][0], dtype)];
+        } else {
+          // if there is a 0-length dimension, the exported graph json lacks "size"
+          const shape = v.tensorShape.dim.map(d => (!d.size) ? 0 : parseInt(d.size)); //dimension => size?
+
+          let arr;
+
+          if (v.tensorContent) { //if it's not empty
+            const data = atob(v.tensorContent); //atob => "decode" in some way...
+            const buf = new Uint8Array(data.length); //new ArrayBuffer(length): byte
+
+            for (var i = 0; i < data.length; ++i) {
+              //data => integer values
+              buf[i] = data.charCodeAt(i);
+              // Size must match the product of shape
+            }
+
+            arr = new arrayType(buf.buffer);
+
+          } else { //if v.tensorContent is null => 40 nodes in total
+            const size = shape.reduce((a, b) => a * b);
+            arr = new arrayType(size);
+            if (size) {
+              arr.fill(v[field][0]);
+            }
+          }
+
+          consts[node.name] = [tf.tensor(arr, shape, dtype)];
+          //consts =>{node.name: tensor}
+        }
+      }));
+      return consts;
+    }
+
+    const setup = async () => {
+      var files = [];
+      files[0] = "trad/bao_12000";
+      files[1] = "trad/dong_16000";
+      files[2] = "trad/han_trad_12000";
+      files[3] = "trad/ji_machine_12000";
+      files[4] = "trad/xi_12000";
+      files[5] = "trad/sen_trad_12000";
+      files[6] = "trad/lin_trad_12000";
+
+      files[7] = "seal/song_seal_12000";
+      files[8] = "seal/hua_seal_12000";
+      files[9] = "seal/ya_seal_12000";
+      files[10] = "seal/feng_seal_12000";
+
+      const D = 96;
+
+      let seed = new Array(16).fill(0).map((x, i) => i < 3 ? 0 : 1);
+      seed = tf.tensor(seed, [1, 1, 1, 16]);
+
+      const initState = tf.tidy(() => {
+        const D2 = D / 2;
+        const a = seed.pad([
+          [0, 0],
+          [D2 - 1, D2], //height
+          [D2 - 1, D2], //width
+          [0, 0]
+        ]);
+        return a;
+      });
+
+      const initState2 = tf.tidy(() => {
+        const D2 = D / 2;
+        const a = seed.pad([
+          [0, 0],
+          [0, D2 * 2 - 1], //height
+          [D2 - 1, D2], //width
+          [0, 0]
+        ]);
+        return a;
+      });
+
+      var consts = [];
+      var models = [];
+
+      for (let i = 0; i < files.length; i++) {
+        var r = await fetch("../output/" + files[i] + ".json");
+        consts[i] = parseConsts(await r.json());
+        models[i] = await tf.loadGraphModel("../output/" + files[i] + ".json");
+        Object.assign(models[i].weights, consts[i]);
+      }
+
+      //model weights are all the parameters (including trainable and non-trainable) of the model
+      // which are in turn all the parameters used in the layers of the model
+
+      const state = tf.variable(initState);
+      const [_, h, w, ch] = state.shape; // => shape of the initial state tensor: (4,2)
+
+      const state2 = tf.variable(initState2);
+
+      const stateSliced = tf.variable(state.slice([0, 0, 0, 0], [1, 48, 96, 16]));
+      const stateSliced2 = tf.variable(state2.slice([0, 0, 0, 0], [1, 48, 96, 16]));
+
+      const damage = (x, y, r) => {
+        tf.tidy(() => {
+          if (y < h / 2) {
+            const rx = tf.range(0, w).sub(x).div(r).square().expandDims(0);
+            const ry = tf.range(0, h / 2).sub(y).div(r).square().expandDims(1);
+            const mask = rx.add(ry).greater(1).expandDims(2);
+            stateSliced.assign(stateSliced.mul(mask));
+          } else {
+            const rx = tf.range(0, w).sub(x).div(r).square().expandDims(0);
+            const ry = tf.range(h / 2, h).sub(y).div(r).square().expandDims(1);
+            const mask = rx.add(ry).greater(1).expandDims(2);
+            stateSliced2.assign(stateSliced2.mul(mask));
+          }
+        });
+      }
+      const plantSeed = (x, y) => {
+        var x2 = w * scale - x - seed.shape[2]; //seed => [1,1,1,16]
+        var y2 = h * scale - y - seed.shape[1];
+
+        x = Math.floor(x / 4);
+        x2 = Math.floor(x2 / 4);
+        y = Math.floor(y / 4);
+        y2 = Math.floor(y2 / 4);
+
+        if (x < 0 || x2 < 0 || y2 < 0 || y2 < 0) return;
+        const a = seed.pad([
+          [0, 0],
+          [y, y2],
+          [x, x2],
+          [0, 0]
+        ]);
+        if (y < h / 2) {
+          stateSliced.assign(stateSliced.add(a.slice([0, 0, 0, 0], [1, 48, 96, 16])));
+        } else {
+          stateSliced2.assign(stateSliced2.add(a.slice([0, 48, 0, 0], [1, 48, 96, 16])));
+        }
+
+      }
+
+      const scale = 4;
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = w;
+      canvas.height = h;
+
+      canvas.style.width = `${w*scale}px`;
+      canvas.style.height = `${h*scale}px`;
+      canvas.style.display = 'inline-block';
+
+      canvas.onmousedown = e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left));
+        const y = Math.floor((event.clientY - rect.top));
+        console.log(x + "," + y);
+        if (e.buttons == 1) {
+          if (e.shiftKey) {
+            plantSeed(x, y);
+          } else {
+            damage(x, y, 5);
+          }
+        }
+      }
+
+      canvas.onmousemove = e => {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.floor((event.clientX - rect.left) / scale);
+        const y = Math.floor((event.clientY - rect.top) / scale);
+        if (e.buttons == 1 && !e.shiftKey) {
+          damage(x, y, 5);
+        }
+      }
+      var stepcount = 0;
+
+      function step() {
+
+        if (stepcount == 1) {
+          console.log(state.shape);
+        }
+        //state => shape=[1,96(h),96(w),16]
+        tf.tidy(() => {
+          stateSliced.assign(models[modelIndex1].execute({ //.execute(inputs, outputs)
+            x: stateSliced,
+            fire_rate: tf.tensor(0.5), //borning rate?
+            angle: tf.tensor(0.0), //rotation angle
+            step_size: tf.tensor(1.0),
+          }, ['Identity']));
+
+          stateSliced2.assign(models[modelIndex2].execute({ //.execute(inputs, outputs?)
+            x: stateSliced2,
+            fire_rate: tf.tensor(0.5), //borning rate?
+            angle: tf.tensor(0.0), //rotation angle
+            step_size: tf.tensor(1.0),
+          }, ['Identity']));
+        });
+
+      }
+
+      function render() {
+        stepcount++;
+        if (isPlaying) step();
+
+        if (refreshed) {
+          damage(w / 2, h / 2, w);
+          damage(w / 2, h / 2 - 1, w);
+
+          modelIndex1 = Math.floor(Math.random() * 11);
+
+          if (modelIndex1 <= 6) {
+            modelIndex2 = Math.floor(Math.random() * 7);
+          } else {
+            modelIndex2 = Math.floor(Math.random() * 4 + 7);
+
+          }
+
+          plantSeed(w * 2, h * 2 - 1);
+          plantSeed(w * 2, h * 2);
+
+          refreshed = false;
+        }
+
+        const imageData = tf.tidy(() => {
+          const concatStates = tf.concat([stateSliced, stateSliced2], 1);
+          // if(stepcount==2) console.log(concatStates.shape);
+          const rgba = concatStates.slice([0, 0, 0, 0], [-1, -1, -1, 4]);
+          const a = concatStates.slice([0, 0, 0, 3], [-1, -1, -1, 1]);
+          const img = tf.tensor(1.0).sub(a).add(rgba).mul(255);
+          const rgbaBytes = new Uint8ClampedArray(img.dataSync()); //length: 4*w*h => rgba
+          return new ImageData(rgbaBytes, w, h);
+        });
+        ctx.putImageData(imageData, 0, 0);
+        //-------------
+
+        requestAnimationFrame(render);
+      }
+      render();
+    }
+    setup();
+
+    let isPlaying = true;
+    let refreshed = false;
+
+    function nextModel() {
+      refreshed = true;
+    }
+  </script>
+
+  <!-- Page footer -->
+  <footer>
+
+    <p style=" position: fixed;left: 0;
+   bottom: 0; width: 98%; text-align: right;font-size: 5px;">KARLIE ZHAO @2021
+    </p>
+  </footer>
+</body>
+
+
+</html>

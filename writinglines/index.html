@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Writing Lines</title>
+
+    <!-- “Writing Lines” Copyright (C) 2023 Author
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright 
+notice and this notice are preserved. This file is offered as-is,
+without any warranty.
+
+Starting from a sentence with minor mistakes, 
+this piece of code iterates over the sentence 10 times, ending up making more and more mistakes. 
+Writing lines might bring us back to childhood memories of writing the same words over and over again, 
+to learn or to practice, or being punished, 
+or happening outside of writing but in playing musical instruments, rehearsing performances.
+
+There should be something poetic in the definition of insanity, 
+doing the same thing over and over and expecting different results. 
+For instance, there is semantic saturation, 
+a common psychological phenomenon in which repetition causes a word or phrase to temporarily lose meaning to a person. 
+In this poem, the digital memory remembers all of the mistakes that have been made, 
+and then brings us back, along the path where these mistakes happened. 
+In some other cases, perhaps, 10 repetitions are enough for us to remember something, or forget something.
+
+-->
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden
+        }
+        
+        a {
+            color: #000;
+            text-decoration: none
+        }
+        
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000
+        }
+        
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px
+        }
+    </style>
+</head>
+
+<body>
+    <header id=nav>
+        <h1>
+            <a href="index.html">Writing Lines</a> by
+            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Jan 2023<br>
+            <a href="../nca/index.html">&lt;&lt; Prev</a> &mdash;
+            <a href="next.html">Next &gt;&gt;</a>
+        </h1>
+    </header>
+
+    <div id="text" style="font-size: 1.3vw; line-height: 3vw; font-family: 'Courier New', monospace; font-weight:bold; width: 80vw; height: 92vh; background-color: rgba(225, 210, 172, 0.219); margin: auto; text-align: center; padding-top: 7%;">
+    </div>
+
+    <script>
+        let text = "I'm typing my mistakes for 10 times so that I won't make any mistakes.";
+        const cap_letter = /([A-Z])/g,
+            lower_letter = /([a-z])/g;
+        let newtext, chance, count, speed, index, lines, main, reverse_start;
+
+        function refresh() {
+            newtext = "", chance = .04, count = 9, speed = 70, index = 0, lines = [], reverse_start = !1
+        }
+
+        function writeLines() {
+            if (newtext = "", 10 === lines.length && (reverse_start = !0), reverse_start) 9 === count && (document.getElementById("text").innerHTML = ""), speed += 4, newtext = lines[count], count < 0 ? (document.getElementById("text").innerHTML = "", reverse_start = !1, refresh()) : (typeWriter(), count--);
+            else {
+                for (var e in text) letter = text[e], Math.random() < chance && (cap_letter.test(letter) ? letter = String.fromCharCode(65 + Math.floor(26 * Math.random())) : lower_letter.test(letter) && (letter = String.fromCharCode(97 + Math.floor(26 * Math.random())))), newtext += letter;
+                lines.push(newtext), typeWriter(), speed -= 4, chance += .1
+            }
+            main = setTimeout(writeLines, 115 * speed)
+        }
+        refresh(), main = setTimeout(writeLines, 500);
+        let type;
+
+        function typeWriter() {
+            index < newtext.length ? (document.getElementById("text").innerHTML += newtext.charAt(index), type = setTimeout(typeWriter, speed), index++) : (document.getElementById("text").innerHTML += "<br>", index = 0)
+        }
+        document.addEventListener("visibilitychange", function() {
+            document.hidden ? (clearTimeout(type), clearTimeout(main)) : (main = setTimeout(writeLines, 115 * speed), setTimeout(typeWriter, speed))
+        });
+    </script>
+
+</body>
+
+</html>
