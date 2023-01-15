@@ -1,0 +1,48 @@
+@font-face {
+  font-family: "New Tegomin";
+  src: url("https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap");
+}
+
+html, body {
+  width: 1790px;
+  height: 3500px;
+  margin: 0;
+  padding: 0;
+  background: #030b1a;
+  background: linear-gradient(#46748c, #00071a);
+  font-family: 'New Tegomin', serif;
+  scroll-behavior: smooth;
+}
+
+canvas {
+  display: block;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.loading {
+  position: absolute;
+  top: 40%;
+  transform: translate(-50%, -50%);
+  font-size: 22px;
+  color: #eee;
+}
+
+.preload {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  bottom: 0;
+  position: fixed;
+  /* background: #00071a; */
+  text-align: center;
+}
+
+.loader-frame {
+  /* margin  : auto; */
+  position: relative;
+}

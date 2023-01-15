@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- fonts are loaded here -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=New+Tegomin&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.2.0/addons/p5.sound.min.js"></script>
+    <script src="rita.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden
+        }
+        
+        a {
+            color: #000;
+            text-decoration: none
+        }
+        
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000
+        }
+        
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px
+        }
+    </style>
+</head>
+
+<body>
+    <header id=nav>
+        <h1>
+            <a href="index.html">A Walk to the Sea</a> by
+            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Mar 2022<br>
+            <a href="./index.html">&lt;&lt; Prev</a> &mdash;
+            <a href="../nca/index.html">Next &gt;&gt;</a>
+        </h1>
+    </header>
+    <p class="preload" id="p5_loading"> <span class="loading"> Loading...</span></p>
+
+    <script src="text2.js"></script>
+    <script src="Element2.js"></script>
+    <script src="getBrowserLanguage.js"></script>
+    <script src="methods.js"></script>
+    <script src="flowfield.js"></script>
+    <script src="mainJS.js"></script>
+
+</body>
+
+</html>
