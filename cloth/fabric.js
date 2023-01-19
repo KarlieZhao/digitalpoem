@@ -117,7 +117,7 @@ function draw() {
     // Display tool tips
     textSize(16);
     text("Drag mouse to add wind.", width / 2, 25);
-    text("Press W/E to snap/unsnap hovered letters. Press Q + move mouse to cut.", width / 2, 50);
+    text("Press W/E to snap/unsnap hovered letters. Press SPACE + move mouse to cut.", width / 2, 50);
     // User wind force
 
     if (mouseIsPressed) {
