@@ -23,8 +23,8 @@ let gridResolution = 30;
 let doTriangulation = false;
 let points = [];
 let segments = [];
-let poem = "Your abandoned clothes tell me every aspect of you. Your size, your taste, your favorite colors. The saggy parts of cloth show me the shapes of your body. The signs of wear and tear tell about your habitual actions. The type of fabrics and the bits of skin on them say everything about your skin, and even your genes. It’s never been easier than today to keep a person around, sculpting a person based on the clothes you left. I love your old clothes in the same way I love you.";
-let rows = 16;
+let poem = "Your abandoned clothes tell me every aspect of you. Your size, your taste, your favorite colors. The saggy parts of cloth show the shapes of your body. The signs of wear and tear tell about your habitual actions. The type of fabrics and the bits of skin on them say everything about your skin, and even your genes. It’s never been easier than today to keep a person around, sculpting a person based on the clothes you left. \"Your absence has gone through me, like thread through a needle, everything I do is stitched with its color\" I love your old clothes in the same way I love you."
+let rows = 20;
 let cols = 30;
 let isCut = false;
 
