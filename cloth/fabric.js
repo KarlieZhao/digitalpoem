@@ -14,18 +14,29 @@ let lastMousex, lastMousey;
 
 let TIMESTEPS_MAX = 50;
 let TIMESTEPS_MIN = 1;
-let GRID_RESOLUTION_MAX = 30;
-let GRID_RESOLUTION_MIN = 4;
 
 let pressedKey = -1;
 let timesteps = 3;
-let gridResolution = 30;
+let gridResolution = 31;
 let doTriangulation = false;
 let points = [];
 let segments = [];
-let poem = "Your abandoned clothes tell me every aspect of you. Your size, your taste, your favorite colors. The saggy parts of cloth show the shapes of your body. The signs of wear and tear tell about your habitual actions. The type of fabrics and the bits of skin on them say everything about your skin, and even your genes. It’s never been easier than today to keep a person around, sculpting a person based on the clothes you left. \"Your absence has gone through me, like thread through a needle, everything I do is stitched with its color\" I love your old clothes in the same way I love you."
+let poem = 
+`Your abandoned clothes tell me every aspect of you. Your size,your taste, your favorite
+\xa0\xa0\xa0\xa0\xa0colors. The saggy parts of
+\xa0\xa0\xa0\xa0cloth show the shapes of your
+\xa0body. The signs of wear and
+\xa0\xa0\xa0tear tell about your habitual
+\xa0actions. The types of fabric
+\xa0\xa0and the bits of skin say every-thing about your skin, and evenyour genes. It’s never been
+\xa0\xa0\xa0easier than today to keep a
+\xa0\xa0\xa0person around, sculpting them
+\xa0based on the clothes they left. \"Your absence has gone throughme, like thread through a
+\xa0\xa0\xa0\xa0\xa0needle, everything I do is
+\xa0\xa0\xa0\xa0stitched with its color.\"`
+
 let rows = 20;
-let cols = 30;
+let cols = 31;
 let isCut = false;
 
 function addPoint(xPos, yPos) {
@@ -43,8 +54,7 @@ function addSegment(point1, point2) {
 
 
 function setup() {
-    createCanvas(800, window.innerHeight * 0.9);
-    
+    createCanvas(window.innerWidth, window.innerHeight*0.95);
     textAlign(CENTER);
     background(230);
     resetGrid(doTriangulation);
@@ -58,11 +68,11 @@ function resetGrid(triangulation) {
     points = [];
     segments = [];
 
-    let startX = width / 4;
+    let startX = width / 2.6;
     let startY = height / 5;
     let gridSize = 400;
     let cellSize = gridSize / gridResolution;
-    let row_size = gridSize / rows;
+    let row_size = gridSize*1.2 / rows;
     let col_size = gridSize / cols;
 
     // for (let y = 0; y < gridResolution; y++) {
@@ -108,7 +118,6 @@ function draw() {
     // Draw grid
     // for (i in segments) { segments[i].draw(); }
     textSize(20);
-    // for (Point pt : points) { pt.draw(); }
     for (let i = 0; i < points.length; i++) {
         let pt = points[i];
         pt.draw(i);
@@ -117,7 +126,7 @@ function draw() {
     // Display tool tips
     textSize(16);
     text("Drag mouse to add wind.", width / 2, 25);
-    text("Press W/E to snap/unsnap hovered letters. Press SPACE + move mouse to cut.", width / 2, 50);
+    text("Press SPACE to cut, press W/E to snap/unsnap hovered letters. ", width / 2, 50);
     // User wind force
 
     if (mouseIsPressed) {
