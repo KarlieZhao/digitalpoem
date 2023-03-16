@@ -65,13 +65,12 @@ class Point {
     draw() {
         if (this.select) {
             fill(255, 0, 0);
-        } else if(!this.snappable){
-            fill(110,38, 32)
-        }else if (this.snap) {
+        } else if (!this.snappable) {
+            fill(110, 38, 32)
+        } else if (this.snap) {
             fill(0);
-            
         } else {
-            fill(50);
+            fill(110, 38, 32);
         }
         stroke(0);
         strokeWeight(0);
