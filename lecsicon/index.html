@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lecsicon</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Special+Elite&display=swap');
+    </style>
+    <style>
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000
+        }
+        
+        header a {
+            color: #000;
+            text-decoration: none
+        }
+        
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px
+        }
+        
+        body {
+            margin: 0;
+            font-size: 18px;
+            color: black;
+            font-family: 'Special Elite', cursive;
+            background-color: #EFF0F1;
+            overflow: hidden;
+        }
+        
+        .textarea {
+            word-break: break-word;
+            border: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: 20px;
+            display: block;
+            overflow: hidden;
+            /* resize: horizontal; */
+            min-height: 20px;
+            width: 99%;
+            height: 100%;
+            overflow: scroll;
+        }
+        
+        h1 {
+            font-size: 50px;
+        }
+        
+        h2 {
+            font-size: 25px;
+        }
+        
+        .title {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            line-height: 2.4rem;
+            width: 45%;
+        }
+        
+        #display {
+            width: 40vw;
+            /* border: 2px solid black; */
+            position: absolute;
+            top: 350px;
+            left: 50%;
+            line-height: 3rem;
+            font-size: 25px;
+            /* text-align: center; */
+            vertical-align: center;
+        }
+        
+        a {
+            color: black;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+        }
+    </style>
+</head>
+
+<body onload="setup()">
+    <header id=nav>
+        <h1>
+            <a href="index.html">Lecsicon</a> by
+            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Mar 2023<br>
+            <a href="../clothes/index.html">&lt;&lt; Prev</a> &mdash; Next &gt;&gt;
+        </h1>
+    </header>
+
+    <img src="./images/bg1.png" style="width: 44%;">
+
+    <div class="title">
+        <h1><a href="./about.html" style="color:#880000">Lecsicon</a></h1>
+        <h2><span style="color:#880000">L</span>inguists <span style="color:#880000">e</span>nthusiastically <span style="color:#880000">c</span>atalog <span style="color:#880000">s</span>ymbols, <br><span style="color:#880000">i</span>nterpreting <span style="color:#880000">c</span>arefully
+            <span style="color:#880000">o</span>ccurred
+            <span style="color:#880000">n</span>uances.</h2>
+    </div>
+    <div id="display"> </div>
+    <script src="./script.js"></script>
+</body>
+
+</html>
