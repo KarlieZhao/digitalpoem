@@ -10,7 +10,7 @@ function setup() {
 }
 async function loadJSON(callback) {
     try {
-        const response = await fetch('./words.json');
+        const response = await fetch('./data/words.json');
         const data = await response.json();
 
         word_data = data;
