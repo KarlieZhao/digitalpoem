@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Writing Lines</title>
+    <title>Writing Lines (Taper #10)</title>
 
     <!-- “Writing Lines” Copyright (C) 2023 Author
 
@@ -20,7 +20,7 @@ or happening outside of writing but in playing musical instruments, rehearsing p
 
 There should be something poetic in the definition of insanity, 
 doing the same thing over and over and expecting different results. 
-For instance, there is semantic saturation, 
+For instance, there is semantic satiation, 
 a common psychological phenomenon in which repetition causes a word or phrase to temporarily lose meaning to a person. 
 In this poem, the digital memory remembers all of the mistakes that have been made, 
 and then brings us back, along the path where these mistakes happened. 
@@ -35,15 +35,15 @@ In some other cases, perhaps, 10 repetitions are enough for us to remember somet
         }
         
         a {
-            color: #000;
+            color: #eee;
             text-decoration: none
         }
         
         header {
             margin: 0;
             padding: 0;
-            background-color: #eee;
-            color: #555;
+            background-color: #444;
+            color: #bbb;
             position: relative;
             z-index: 1000
         }
@@ -62,30 +62,70 @@ In some other cases, perhaps, 10 repetitions are enough for us to remember somet
 <body>
     <header id=nav>
         <h1>
-            <a href="index.html">Writing Lines</a> by
-            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Jan 2023<br>
-            <a href="../nca/index.html">&lt;&lt; Prev</a> &mdash;
-            <a href="../cloth/index.html">Next &gt;&gt;</a>
+            <a href="index.html">Taper #10 :
+		TBA</a> : Spring 2023 <br>
+            <a href="title_of_your_work.html">Writing Lines</a> by
+            <a href="about.html#authorlastname">¡wénrán zhào!</a> :
+            <a href="prev.html">&lt;&lt;</a> &mdash;
+            <a href="next.html">&gt;&gt;</a>
         </h1>
     </header>
 
-    <div id="text" style="font-size: 1.3vw; line-height: 3vw; font-family: 'Courier New', monospace; font-weight:bold; width: 80vw; height: 92vh; background-color: rgba(225, 210, 172, 0.219); margin: auto; text-align: center; padding-top: 7%;">
+    <div id="text" style="font-size: 1.3vw; line-height: 3vw; font-family: 'Courier New', monospace; font-weight: bold; height: 92vh; background-color:#F1F5F8; margin: auto; text-align: center; padding-top: 7%;">
     </div>
 
     <script>
         let text = "I'm typing my mistakes for 10 times so that I won't make any mistakes.";
-        const cap_letter = /([A-Z])/g,
-            lower_letter = /([a-z])/g;
-        let newtext, chance, count, speed, index, lines, main, reverse_start;
+        const keys = {
+                q: ["w", "a"],
+                w: ["q", "e", "s"],
+                e: ["w", "r", "d"],
+                r: ["e", "t", "f"],
+                t: ["r", "y", "g"],
+                y: ["t", "u", "h"],
+                u: ["y", "i", "j"],
+                i: ["u", "o", "k"],
+                o: ["i", "p", "l"],
+                p: ["o", "l"],
+                a: ["q", "s", "z"],
+                s: ["w", "a", "d", "x", "z"],
+                d: ["e", "s", "f", "c", "x"],
+                f: ["r", "d", "g", "v", "c"],
+                g: ["t", "f", "h", "b", "v"],
+                h: ["y", "g", "j", "n", "b"],
+                j: ["u", "h", "k", "m", "n"],
+                k: ["i", "j", "l", "m"],
+                l: ["o", "k"],
+                z: ["a", "s", "x"],
+                x: ["s", "d", "z", "c"],
+                c: ["d", "f", "x", "v"],
+                v: ["f", "g", "c", "b"],
+                b: ["g", "h", "v", "n"],
+                n: ["h", "j", "b", "m"],
+                m: ["j", "k", "n"]
+            },
+            cap = /([A-Z])/g,
+            lower = /([a-z])/g;
+        let newtext, chance, count, speed, index, lines, main, reverse_start, timer;
 
         function refresh() {
-            newtext = "", chance = .04, count = 9, speed = 70, index = 0, lines = [], reverse_start = !1
+            newtext = "", chance = .03, count = 9, speed = 70, index = 0, lines = [], reverse_start = !1, timer = 0
         }
 
         function writeLines() {
             if (newtext = "", 10 === lines.length && (reverse_start = !0), reverse_start) 9 === count && (document.getElementById("text").innerHTML = ""), speed += 4, newtext = lines[count], count < 0 ? (document.getElementById("text").innerHTML = "", reverse_start = !1, refresh()) : (typeWriter(), count--);
             else {
-                for (var e in text) letter = text[e], Math.random() < chance && (cap_letter.test(letter) ? letter = String.fromCharCode(65 + Math.floor(26 * Math.random())) : lower_letter.test(letter) && (letter = String.fromCharCode(97 + Math.floor(26 * Math.random())))), newtext += letter;
+                for (var e in text) {
+                    if (letter = text[e], Math.random() < chance)
+                        if (cap.test(letter)) {
+                            let e = keys[letter.toLowerCase()];
+                            letter = e[Math.floor(Math.random() * e.length)].toUpperCase()
+                        } else {
+                            var t;
+                            lower.test(letter) && (t = keys[letter], letter = t[Math.floor(Math.random() * t.length)])
+                        }
+                    newtext += letter
+                }
                 lines.push(newtext), typeWriter(), speed -= 4, chance += .1
             }
             main = setTimeout(writeLines, 115 * speed)
