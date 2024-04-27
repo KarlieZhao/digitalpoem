@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Thread in the Air</title>
+    <!-- Cloth(es) is an interactive poem that invites the audience to engage in a tactile experience of fabrics in the digital realm. 
+        The verse begins with “your abandoned clothes tell me every aspect of you…”, and soon the letters fall from the positions where they were pinned, swinging in the wind, segments pulling each other. 
+        Therefore a piece of fabric is stretched, folded, and released. 
+        We all share the experience of encountering old clothes with their previous owners' remnant presence on them, leading to endless nuanced imaginations. 
+        The poem’s content describes its form: a piece of fabric that might be torn, scraped, and disposed of. 
+        What we see from old clothes is that person who has worn them.
+        While the characteristics of fabrics are extracted and presented in a digital interface, the tactile sensation of touching woven fibers is transformed into the act of pressing keys and swiping the touchpad. 
+        As such, why are we intrigued by this hybrid, interactive form of poetry and fabrics? 
+        This poem, both its form and content, acts as an index to the intrinsic form of fabrics, prompting questions about what is lost, kept, or altered through this transformation from physical to digital.
+         -->
+
+    <style>
+        body {
+            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block
+        }
+        
+        canvas {
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        
+        a {
+            color: #000;
+            text-decoration: none
+        }
+        
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000
+        }
+        
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>
+</head>
+
+
+<body>
+    <header id=nav>
+        <h1>
+            <a href="index.html">Thread in the Air</a> by
+            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Mar 2024<br>
+            <a href="../lecsicon/index.html">&lt;&lt; Prev</a> &mdash; <a href="../knit/index.html">Next</a> &gt;&gt;
+        </h1>
+    </header>
+    <script src="./point.js"></script>
+    <script src="./collision.js"></script>
+    <script src="./segment.js"></script>
+    <script src="./update.js"></script>
+    <script src="./main.js"></script>
+</body>
+
+</html>

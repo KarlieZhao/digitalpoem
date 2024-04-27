@@ -16,6 +16,10 @@
             font-family: 'Special Elite', cursive;
             background-color: #EFF0F1;
             overflow: hidden;
+            margin: 0;
+            margin-left: auto;
+            margin-right: auto;
+            display: block
         }
         
         .left {
@@ -91,12 +95,6 @@
             vertical-align: center;
         }
         
-        a {
-            color: black;
-            text-decoration: underline;
-            text-decoration-thickness: 2px;
-        }
-        
         .params {
             position: relative;
             width: 20%;
@@ -131,7 +129,6 @@
         input[type=range] {
             transform: rotate(270deg);
             -webkit-appearance: none;
-
         }
         /* for chrome/safari */
         
@@ -146,6 +143,36 @@
             border-radius: 4px;
         }
         /* hide the temperature slider in firefox coz it's not fucking working */
+        
+        a {
+            color: black;
+            text-decoration: none
+        }
+        
+        canvas {
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000
+        }
+        
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px;
+            text-decoration: none;
+        }
         
         @-moz-document url-prefix() {
             input[type="range"] {
@@ -200,6 +227,13 @@
 </head>
 
 <body onload="setup()">
+    <header id=nav>
+        <h1>
+            <a href="index.html">Lecsicon</a> by
+            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Mar 2023<br>
+            <a href="../clothes/index.html">&lt;&lt; Prev</a> &mdash; <a href="../thread/index.html">Next</a> &gt;&gt;
+        </h1>
+    </header>
     <div class="left">
         <div class="title">
             <h1><a href="./about.html" style="color:#880000">Lecsicon</a></h1>
