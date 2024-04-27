@@ -22,7 +22,7 @@ let movingIncre = 1;
 let noiseIndex = 0.7;
 
 function setup() {
-    createCanvas(window.innerWidth * 0.8, 1000);
+    createCanvas(window.innerWidth * 0.8, window.innerHeight*0.95);
     background(0);
     textSize(textS);
 
