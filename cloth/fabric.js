@@ -39,6 +39,10 @@ let rows = 20;
 let cols = 31;
 let isCut = false;
 
+function preload() {
+    monoFont = loadFont('RobotoMono-VariableFont_wght.ttf');
+}
+
 function addPoint(xPos, yPos) {
     let newPoint = new Point(xPos, yPos);
     points.push(newPoint);
@@ -56,11 +60,11 @@ function addSegment(point1, point2) {
 function setup() {
     createCanvas(window.innerWidth, window.innerHeight*0.95);
     textAlign(CENTER);
-    background(230);
+    background(255);
     resetGrid(doTriangulation);
     lastMousex = width / 2;
     lastMousey = height / 2;
-
+    textFont(monoFont, 15);
 }
 
 // Create grid
@@ -103,7 +107,7 @@ function resetGrid(triangulation) {
 
 
 function draw() {
-    background(230);
+    background(255);
 
     // Sim grid
     for (i in points) {
@@ -117,7 +121,7 @@ function draw() {
 
     // Draw grid
     // for (i in segments) { segments[i].draw(); }
-    textSize(20);
+  
     for (let i = 0; i < points.length; i++) {
         let pt = points[i];
         pt.draw(i);

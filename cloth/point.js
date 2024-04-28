@@ -59,14 +59,7 @@ class Point {
     }
 
     draw(letter_index) {
-        if (this.select) {
-            fill(255, 0, 0);
-        } else if (this.snap) {
-            fill(200, 0, 0);
-        } else {
-            fill(0);
-        }
-
+        fill(0);
         stroke(0);
         strokeWeight(0);
         // ellipse(this.pos.x, this.pos.y, this.drawSize, this.drawSize);
