@@ -37,7 +37,7 @@ function draw() {
     posX = initX;
     initY = 250;
 
-    text("Press space bar.", 450, 890)
+    text("Press and hold space bar.", 450, 890)
 
     if (keyIsPressed) {
         if (key === ' ') {

@@ -1,6 +1,6 @@
 // Global Variables
 let loops = 4; // Ability to stretch
-let ground = 900;
+let ground = window.innerHeight*0.95;
 let friction = 0; // Bigger is less friction (negative is negative friction)
 let bounce = 0.0;
 let activeObjects = true; // Should objects appear (collides with points)
