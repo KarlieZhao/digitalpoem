@@ -71,12 +71,15 @@
         let currentPos = 50;
 
         function isMobileDevice() {
-            return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return (/android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream);
         }
 
         function setup() {
-            let w = isMobileDevice ? window.innerWidth*0.95 : 600;
-            let h = isMobileDevice ? window.innerHeight*0.95 : 900;
+            let isMobile = isMobileDevice();
+            let w = isMobile ? window.innerWidth * 0.95  : 600;
+            let h = isMobile ? window.innerHeight * 0.6  : 900;
+           
             createCanvas(w, h);
             colorMode(HSB, 360, 100, 100, 100);
             graphics = createGraphics(width, height);
@@ -96,8 +99,8 @@
             }
             matter.init();
             platform = matter.makeBarrier(width / 2, height, width, 70);
-            platform2 = matter.makeBarrier(width, height / 2, 100, height);
-            platform3 = matter.makeBarrier(0, height / 2, 100, height);
+            // platform2 = matter.makeBarrier(width, height / 2, 100, height);
+            // platform3 = matter.makeBarrier(0, height / 2, 100, height);
 
         }
 
@@ -123,7 +126,7 @@
             // platform2.show();
             // platform3.show();
 
-            if (frameCount % 10 == 0 && charCount < letters.length) {
+            if (frameCount % 10 == 0) {
                 let d = map(charCount, 0, letters.length, 70, 20) + random(width / 6);
                 let x = random(width - 100) + 50;
                 let y = random(d / 2, height / 8 - d / 2);
