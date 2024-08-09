@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Thoughts on Rain</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden
+        }
+
+        a {
+            color: #eee;
+            text-decoration: none
+        }
+        canvas{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 2rem;
+        }
+
+        header {
+            margin: 0;
+            padding: 0;
+            background-color: #eee;
+            color: #555;
+            position: relative;
+            z-index: 1000
+        }
+
+        header a {
+            color: #000;
+            text-decoration: none
+        }
+
+        header>h1 {
+            margin: 0;
+            font-size: 12px;
+            font-family: sans-serif;
+            border-bottom: 1px #999 solid;
+            padding: 5px 10px;
+            line-height: 17px
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.5.0/lib/p5.js"></script>
+    <script src="./matter.min.js"></script>
+    <script src="./p5.matter.js"></script>
+</head>
+
+<body>
+    <header id=nav>
+        <h1>
+            <a href="index.html">Thoughts on Rain</a> by
+            <a href="https://theunthoughts.com/" target="_blank">¡wénrán zhào!</a>: Aug 2024<br>
+            <a href="../bead/index.html">&lt;&lt; Prev</a> &mdash;
+            <a href="../index.html">Next &gt;&gt;</a>
+            <a href="../index.html"> &mdash; Back </a>
+        </h1>
+    </header>
+
+    <script>
+        let blocks = [];
+        let graphics;
+        let letters = "夏夜 濕氣預謀著一場雨 滴滴答答 踢踢踏踏 淅淅瀝瀝 窸窸窣窣 叮叮噹噹 嘩啦嘩啦 乒乒乓乓 大珠小珠 濺濺有聲 雨聲淋漓 風聲簌簌 它們都如張岱所言 回首二十年 恍若隔世"
+        let counter = 0;
+        let char;
+        let charCount = 0;
+        let currentPos = 50;
+
+        function setup() {
+            createCanvas(600, 900);
+            colorMode(HSB, 360, 100, 100, 100);
+            graphics = createGraphics(width, height);
+            graphics.noStroke();
+            for (let i = 0; i < width * height * 3 / 100; i++) {
+                let x = random(width);// width/2;//(5*i+random(10))%width;
+                let y = random(height);
+                let w = random(3);
+                let h = random(3);
+                let a = random(TWO_PI);
+                graphics.fill(random(255), 30);
+                graphics.push();
+                graphics.translate(x, y);
+                graphics.rotate(a);
+                graphics.ellipse(0, 0, w, h);
+                graphics.pop();
+            }
+            matter.init();
+            platform = matter.makeBarrier(width / 2, height, width, 70);
+            platform2 = matter.makeBarrier(width, height / 2, 100, height);
+            platform3 = matter.makeBarrier(0, height / 2, 100, height);
+
+        }
+
+        function makeNekodearu(x, y, d) {
+            charCount++;
+            tSize = random(d / 3, d);
+            textSize(tSize);
+            textFont("serif");
+            char = letters.substr(counter++ % letters.length, 1).toUpperCase();
+            let b = matter.makeSign(char, x, y, {
+                density: 0.01,
+            });
+            b.textSize = tSize;
+            blocks.push(b);
+        }
+
+        function draw() {
+            clear();
+
+            fill(0);
+            noStroke();
+            // platform.show();
+            // platform2.show();
+            // platform3.show();
+
+            if (frameCount % 10 == 0 && charCount < letters.length) {
+                let d = map(charCount, 0, letters.length, 70, 20) + random(width / 6);
+                let x = random(width - 100) + 50;
+                let y = random(d / 2, height / 8 - d / 2);
+                makeNekodearu(x, y, d);
+            }
+
+
+            for (let i = blocks.length - 1; i >= 0; i--) {
+                let b = blocks[i];
+                // print(b);
+                let p = b.body.position;
+                push();
+                translate(p.x, p.y, 0);
+                rotate(b.body.angle);
+                fill(0, 0, 0);
+                textAlign(CENTER, CENTER);
+                textStyle(BOLD);
+                textSize(b.textSize);
+                text(b.text, 0, 0);
+                pop();
+                if (b.isOffCanvas()) {
+                    matter.forget(b);
+                    blocks.splice(i, 1);
+                }
+            }
+            push();
+            let g = get();
+            clear();
+            background(0, 0, 90);
+            image(graphics, 0, 0);
+            // drawingContext.shadowColor = color(0, 0, 0, 33);
+            // drawingContext.shadowBlur = width / 40;
+            // drawingContext.shadowOffsetX = width / 100;
+            // drawingContext.shadowOffsetY = width / 50;
+            image(g, 0, 0);
+            pop();
+        }
+    </script>
+</body>
+
+</html>
