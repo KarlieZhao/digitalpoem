@@ -70,7 +70,7 @@
     <script>
         let blocks = [];
         let graphics;
-        let letters = "夏夜 濕氣預謀著一場雨 滴滴答答 踢踢踏踏 淅淅瀝瀝 窸窸窣窣 叮叮噹噹 嘩啦嘩啦 乒乒乓乓 大珠小珠 濺濺有聲 雨聲淋漓 風聲簌簌 它們都如張岱所言 回首二十年 恍若隔世"
+        let letters = "夏夜 濕氣預謀著一場雨 滴滴答答 踢踢踏踏 淅淅瀝瀝 窸窸窣窣 叮叮噹噹 嘩啦嘩啦 乒乒乓乓 大珠小珠 濺濺有聲 雨聲淋漓 風聲簌簌 它們都如張岱所言 回首二十年 恍若隔世  "
         let counter = 0;
         let char;
         let charCount = 0;
@@ -129,12 +129,11 @@
             // platform3.show();
 
             if (frameCount % 10 == 0) {
-                let d = map(charCount, 0, letters.length, 70, 20) + random(width / 6);
+                let d = random(50) + 40;
                 let x = random(width - 100) + 50;
-                let y = random(d / 2, height / 8 - d / 2);
+                let y = random(-d / 4,  d );
                 makeNekodearu(x, y, d);
             }
-
 
             for (let i = blocks.length - 1; i >= 0; i--) {
                 let b = blocks[i];
